@@ -1,0 +1,612 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Sat Dec 26 21:04:22 2020
+
+@author: Gözde
+"""
+
+
+from tkinter import *
+from tkinter import messagebox 
+import tkinter
+from tkinter.filedialog import askopenfilename
+from tkinter.filedialog import *    
+import tkinter as tk
+from PIL import Image, ImageTk 
+import os
+import scp
+
+
+
+fields = '#SBATCH -p', '#SBATCH -c', '#SBATCH --gres=gpu:', '#SBATCH --time =', '#SBATCH --qos =', 'pips = '
+works =   'Ip/Hostname','Username','Password'
+    
+
+ 
+    
+def fet2(entries):
+    dosya = open("settings.ink","w",encoding="utf-8")
+    for entry in entries:
+        field = entry[0]
+        text  = entry[1].get()
+        dosya.write('%s\n' % (text))
+        
+            
+           
+def make2(root, works):
+    sendentries = []
+    b=0
+    for work in works:
+        
+        row = tk.Frame(root)
+        lab = tk.Label(row, width=15, text=work, bg="white", anchor='w')
+    
+        ent = tk.Entry(row)
+        row.pack(side=tk.TOP, fill=tk.X, padx=5, pady=5)
+        lab.pack(side=tk.LEFT)
+     
+        ent.pack(side=tk.RIGHT, expand=tk.YES, fill=tk.X)
+        sendentries.append((work, ent))
+        
+    return sendentries    
+            
+    
+def settings():
+    root = tk.Tk()
+    root.config(bg="white")
+   
+
+    
+    ents = make2(root, works)
+    
+    
+    root.bind('<Return>', (lambda event, e=ents: fet2(e)))   
+    b1 = tk.Button(root, text='Save',  fg = "white",
+      bg= "grey", command=(lambda e=ents: fet2(e)))
+    b1.pack(side=tk.LEFT, padx=5, pady=5)
+    b2 = tk.Button(root, text='Quit',   fg = "white",
+      bg= "grey", command=root.destroy)
+    b2.pack(side=tk.LEFT, padx=5, pady=5) 
+
+    
+     
+     
+     
+
+def Enquiry(lis1): 
+    if not lis1: 
+        return 1
+    else: 
+        return 0
+            
+                
+            
+                  
+def fetch(entries):
+    name=open("filenamefortruba.ink","r")
+    name.readline()
+    filename=name.readline()
+    filename=filename.rstrip()
+    namejob=filename[0:-3]
+    name=namejob
+    namejob=namejob+".job"
+    pyfile=open(filename,"r")
+    line=pyfile.readlines()
+    lines=str(line)
+    jobfile=open(namejob,"w")
+    jobfile.write("#!/bin/bash") 
+    b=0
+    for entry in entries:
+        b=b+1
+        field = entry[0]
+        text  = entry[1].get()
+        i=0
+        newtext=[]                
+        if(b==1):
+            search=lines.find("#NuNuTRUBA_KUYRUK")
+            search=search+18
+            jobfile.write("\n#SBATCH -p ")
+            if Enquiry(text):
+                while True:
+                    jobfile.write(lines[search])
+                    search=search+1
+                    if(lines[search]==":"):
+                        break
+            else:
+                jobfile.write(text)
+        
+        if(b==2):
+            search=lines.find("#NuNuTRUBA_CPUSAYISI")
+            search=search+21
+            jobfile.write("\n#SBATCH -c ")
+            if Enquiry(text):
+                while True:
+                    jobfile.write(lines[search])
+                    search=search+1
+                    if(lines[search]==":"):
+                        break
+            else:
+                jobfile.write(text)
+        if(b==3):
+            jobfile.write("\n#SBATCH -j ")
+            jobfile.write(namejob)
+            search=lines.find("#NuNuTRUBA_GPUSAYISI")
+            search=search+21
+            jobfile.write("\n#SBATCH --gres=gpu ")
+            if Enquiry(text):
+                while True:
+                    jobfile.write(lines[search])
+                    search=search+1
+                    if(lines[search]==":"):
+                        break
+            else:
+                jobfile.write(text)
+        if(b==4):
+            jobfile.write("\n#SBATCH --time= ")
+            if Enquiry(text):
+                jobfile.write("02-00:00")
+            else:
+                jobfile.write(text)
+        if(b==5):
+            jobfile.write("\n#SBATCH --qop= ")
+            if Enquiry(text):
+                jobfile.write("normal")
+            else:
+                jobfile.write(text)
+   
+        if (b==6):
+             jobfile.write("\nmodule load centos7.3/comp/python/3.6.5-gcc")
+             jobfile.write("\nmodule load centos7.3/lib/cuda/10.0")
+             b=b+1
+             textstr=str(text)
+             x=0
+             search=lines.find("#NuNuTRUBA_PIP")
+             search=search+15
+             jobfile.write("\npip install user --user ")
+             if Enquiry(text):
+                 while True:
+                     jobfile.write(lines[search])
+                     search=search+1
+                     if(lines[search]==","):
+                         jobfile.write("\npip install user --user ")
+                         search=search+1
+                     if(lines[search]==":"):  
+                          jobfile.write("\npython3 ")
+                          jobfile.write(name)
+                          jobfile.write(" ")
+                          jobfile.write("${1}")
+                          break
+             else:
+                 i=0
+                 while True:
+                     if(text[i]==","):
+                         jobfile.write("\npip install user --user ")
+                         i=i+1
+                     if(text[i]==":"):
+                          jobfile.write("\npython3 ")
+                          jobfile.write(name)
+                          jobfile.write(" ")
+                          jobfile.write("${1}")
+                          break
+                     jobfile.write(text[i])
+                     i=i+1
+       
+                
+                
+
+       
+def send():
+    import paramiko
+    send=open("settings.ink","r")
+    ilk=send.readline() 
+    hostname=ilk.rstrip()
+    
+    ilk=send.readline()
+    username=ilk.rstrip()
+    
+    ilk=send.readline() 
+    password=ilk.rstrip()
+    
+    
+    
+    client = paramiko.SSHClient()
+    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    try:
+        client.connect(hostname=hostname, username=username, password=password)
+    except:
+        print("[!] Cannot connect to the SSH Server")
+    
+        
+           
+    from scp import SCPClient           
+    scp = SCPClient(client.get_transport())
+    name=open("filenamefortruba.ink","r")
+    adres1=name.readline()
+    adres1=adres1.rstrip()
+    adres2=adres1[0:-3]
+    adres2=adres2+".job"
+    
+    filename=name.readline()
+    filename=filename.rstrip()
+    
+    liste2=['/home',username,filename]
+    gonderilen='/'.join(liste2)
+    scp.put(adres1, gonderilen)
+    
+    scp = SCPClient(client.get_transport())
+    filename2=filename[0:-3]
+    filename2=filename2+".job"
+    liste2=['/home',username,filename2]
+    gonderilen='/'.join(liste2)
+    scp.put(adres2, gonderilen)
+
+    name=open("filenamefortruba.ink","r")
+    name.readline()
+    filename=name.readline()
+    filename=filename.rstrip()
+    pyfile=open(filename,"r")
+    line=pyfile.readlines()
+    lines=str(line)
+    search=lines.find("#NuNuTRUBA_GIDENDOSYALAR=")
+    search=search+25
+    i=search
+    file=[]
+    while True:
+            search=search+1
+            if(lines[search]==","):
+                file=lines[i:search]
+                from scp import SCPClient                     
+                scp = SCPClient(client.get_transport())
+                liste=['/home',username,file]
+                host='/'.join(liste)
+                
+                name=open("filenamefortruba.ink","r")
+                adres=name.readline()
+                adres=str(adres)   
+                adres=adres[::-1]
+                a=0
+                while True:
+                     a=a+1
+                     if(adres[a]=="/"):
+                         break
+                adres=adres[a+1:]
+                adres=adres[::-1]
+                liste2=[adres,file]
+                local='/'.join(liste2)
+                scp.put(local,host)
+               
+                
+                i=search+1
+                
+            if(lines[search]==":"):  
+                file=lines[i:search]
+                from scp import SCPClient                     
+                scp = SCPClient(client.get_transport())
+                liste=['/home',username,file]
+                host='/'.join(liste)
+                
+                name=open("filenamefortruba.ink","r")
+                adres=name.readline()
+                adres=str(adres)   
+                adres=adres[::-1]
+                a=0
+                while True:
+                     a=a+1
+                     if(adres[a]=="/"):
+                         break
+                adres=adres[a+1:]
+                adres=adres[::-1]
+                liste2=[adres,file]
+                local='/'.join(liste2)
+                scp.put(local,host)                    
+                        
+                
+                i=search+1
+                        
+                break
+             
+    client = paramiko.SSHClient()
+    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    try:
+        client.connect(hostname=hostname, username=username, password=password)
+    except:
+        print("[!] Cannot connect to the SSH Server")
+    print(sonuc.decode("utf-8"))
+    name=open("filenamefortruba.ink","r")
+    readcom=open("command.ink","r")
+    commands=readcom.readlines()
+    command=str(commands)
+    i=2
+    a=2
+    while True:
+        i=i+1
+        if(command[i]==","):
+            sendcommand=command[a:i] 
+            stdin,stdout,stderr = client.exec_command(sendcommand)
+            sonuc = stdout.read()
+            print(sonuc.decode("utf-8"))
+            a=i+1
+        if(command[i]==":"):
+       
+            break
+
+        
+def output():
+    import paramiko
+    send=open("settings.ink","r")
+    ilk=send.readline() 
+    hostname=ilk.rstrip()
+    
+    ilk=send.readline()
+    username=ilk.rstrip()
+    
+    ilk=send.readline() 
+    password=ilk.rstrip()
+    
+    
+    
+    client = paramiko.SSHClient()
+    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    try:
+        client.connect(hostname=hostname, username=username, password=password)
+    except:
+        print("[!] Cannot connect to the SSH Server")
+    
+    name=open("filenamefortruba.ink","r")
+    name.readline()
+    filename=name.readline()
+    filename=filename.rstrip()
+    pyfile=open(filename,"r")
+    line=pyfile.readlines()
+    lines=str(line)
+    search=lines.find("#NuNuTRUBA_DONENDOSYALAR=")
+    search=search+25
+    i=search
+    file=[]
+    while True:
+            search=search+1
+            if(lines[search]==","):
+                file=lines[i:search]
+                from scp import SCPClient                     
+                scp = SCPClient(client.get_transport())
+                liste=['/home',username,file]
+                alinan='/'.join(liste)
+                
+                name=open("filenamefortruba.ink","r")
+                adres=name.readline()
+                adres=str(adres)   
+                adres=adres[::-1]
+                a=0
+                while True:
+                     a=a+1
+                     if(adres[a]=="/"):
+                         break
+                adres=adres[a+1:]
+                adres=adres[::-1]
+                liste2=[adres,file]
+                gelen='/'.join(liste2)
+                scp.get(alinan,gelen)
+               
+                
+                i=search+1
+                
+            if(lines[search]==":"):  
+                file=lines[i:search]
+                from scp import SCPClient                     
+                scp = SCPClient(client.get_transport())
+                liste=['/home',username,file]
+                alinan='/'.join(liste)
+                
+                name=open("filenamefortruba.ink","r")
+                adres=name.readline()
+                adres=str(adres)   
+                adres=adres[::-1]
+                a=0
+                while True:
+                     a=a+1
+                     if(adres[a]=="/"):
+                         break
+                adres=adres[a+1:]
+                adres=adres[::-1]
+                liste2=[adres,file]
+                gelen='/'.join(liste2)
+                scp.get(alinan,gelen)                    
+                        
+                
+                i=search+1
+                        
+                break
+    
+              
+     
+        
+def makeform(root, fields):
+    entries = []
+    for field in fields:
+        row = tk.Frame(root)
+        lab = tk.Label(row, width=25, text=field, fg = "white",
+      bg= "grey",font = ("Open Sans","11","normal"),anchor='w')
+        ent = tk.Entry(row)
+        row.pack(side=tk.TOP, fill=tk.X, padx=5, pady=5)
+        lab.pack(side=tk.LEFT)
+        ent.pack(side=tk.RIGHT, expand=tk.YES, fill=tk.X)
+        entries.append((field, ent))
+        
+    return entries
+
+    
+def file():
+    root = tk.Tk()
+    root.geometry("600x800")
+    root.config(bg="white")
+    filename=tkinter.filedialog.askopenfilename()
+
+   
+    namefile=open("filenamefortruba.ink","w")
+    namefile.write(filename)
+    namefile.write("\n")
+    
+    name=os.path.basename(filename)    
+    namefile.write(name)
+    namefile.write("\n")
+    
+    namejob=name[0:-3]
+    namejob=namejob+".job"
+    jobname=namejob
+    jobfile=open(namejob,"w")
+    namefile.write(namejob)
+    
+    pyfile=open(name,"r")
+    line=pyfile.readlines()
+    lines=str(line)
+    jobfile.write("#!/bin/bash\n")
+    search=lines.find("#NuNuTRUBA_KUYRUK")
+    search=search+18
+    jobfile.write("#SBATCH -p ")
+    while True:
+        jobfile.write(lines[search])
+        search=search+1
+        if(lines[search]==":"):
+            break
+    search=lines.find("#NuNuTRUBA_CPUSAYISI")
+    search=search+21
+    jobfile.write("\n#SBATCH -c ")
+    while True:
+        jobfile.write(lines[search])
+        search=search+1
+        if(lines[search]==":"):
+            break
+    jobfile.write("\n#SBATCH -j ")
+    namejob=name[0:-3]
+    jobfile.write(namejob)
+    search=lines.find("#NuNuTRUBA_GPUSAYISI")
+    search=search+21
+    jobfile.write("\n#SBATCH --gres=gpu ")
+    while True:
+        jobfile.write(lines[search])
+        search=search+1
+        if(lines[search]==":"):
+            break
+    jobfile.write("\n#SBATCH --time=02-00:00")
+    jobfile.write("\n#SBATCH --qop=normal ")
+    jobfile.write("\nmodule load centos7.3/comp/python/3.6.5-gcc")
+    jobfile.write("\nmodule load centos7.3/lib/cuda/10.0")
+    search=lines.find("#NuNuTRUBA_PIP")
+    search=search+15
+    jobfile.write("\npip install user --user ")
+    while True:
+        jobfile.write(lines[search])
+        search=search+1
+        if(lines[search]==","):
+            jobfile.write("\npip install user --user ")
+            search=search+1
+        if(lines[search]==":"):  
+            break
+    search=lines.find("#NuNuTRUBA_PARAMETRELER")
+    search=search+24
+    com=open("command.ink","w")
+    com.write("sbatch ")
+    com.write(jobname)
+    com.write(" ")
+    while True:
+            com.write(lines[search])
+            search=search+1
+            if(lines[search]==","):
+                com.write(",sbatch ")
+                com.write(jobname)
+                com.write(" ")
+                search=search+1
+            if(lines[search]==":"):  
+                 break
+    com.write(",:")  
+    jobfile.write("\npython3 ")
+    jobfile.write(name)
+    jobfile.write(" ")
+    jobfile.write("${1}")
+    
+                
+    namejob=namejob+".job"   
+    jobfile=open(namejob,"r")
+    metin1=jobfile.readlines()
+    metin=str(metin1)
+    metin2=metin.replace(",","\n")
+    metin2=metin2.replace("'","")
+    metin2=metin2.replace("[","")
+    metin2=metin2.replace("]","")
+
+   
+    labelmet=Label(root, text=metin2, fg = "white", 
+             bg= "grey",font = ("Open Sans","11","normal")).pack()
+    
+    
+
+    ents = makeform(root, fields)
+    
+    
+    
+    root.bind('<Return>', (lambda event, e=ents: fetch(e)))   
+    b1 = tk.Button(root, text='EDIT',  fg = "white",
+      bg= "grey", command=(lambda e=ents: fetch(e)))
+    b1.pack(side=tk.LEFT, padx=5, pady=5)
+   
+    
+    b2 = tk.Button(root, text='SEND',   fg = "white",
+      bg= "grey", command=send)
+    b2.pack(side=tk.LEFT, padx=5, pady=5)  
+    b2 = tk.Button(root, text='OUTPUT',   fg = "white",
+      bg= "grey", command=output)
+    b2.pack(side=tk.LEFT, padx=5, pady=5)  
+    
+   
+    
+     
+    b2 = tk.Button(root, text='QUIT',   fg = "white",
+      bg= "grey", command=root.destroy)
+    b2.pack(side=tk.LEFT, padx=5, pady=5) 
+    
+   
+    
+
+root=Tk()
+root.title("   PROJE")
+ 
+root.config(bg="black")
+yazı = Label(root,text = "NuNuTRUBA", 
+             fg = "white", 
+             bg= "black",
+             font = ("Open Sans","50","bold"),
+            padx=35,
+            pady=35).pack(fill=X)
+
+start=tkinter.Button(root, 
+      text="ENTER TRUBA",
+      command = file ,
+      fg = "white",
+      bg= "black",
+      font = ("Open Sans","30","bold"),
+      padx=25,
+      pady=25).pack()
+setting=tkinter.Button(root, 
+      text="SETTINGS",
+      command=settings,
+      fg = "white",
+      bg= "black",
+      font = ("Open Sans","30","bold"),
+      padx=25,
+      pady=25).pack()
+
+buton2=tkinter.Button(root, 
+      text="QUIT",
+      command = root.destroy,
+      fg = "white",
+      bg= "black",
+      font = ("Open Sans","30","bold"),
+      padx=25,
+      pady=25).pack()
+    
+
+        
+    
+
+
+root.mainloop()

@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sat Dec 26 21:04:22 2020
+Created on Sun Jan  3 12:10:49 2021
 
 @author: Gözde
-"""
 
+UPDATE1
+"""
 
 from tkinter import *
 from tkinter import messagebox 
@@ -19,7 +20,7 @@ import scp
 
 
 fields = '#SBATCH -p', '#SBATCH -c', '#SBATCH --gres=gpu:', '#SBATCH --time =', '#SBATCH --qos =', 'pips = '
-works =   'Ip/Hostname','Username','Password'
+works =   'Ip/Host Adı','Kullanıcı Adı','Şifre'
     
 
  
@@ -61,10 +62,10 @@ def settings():
     
     
     root.bind('<Return>', (lambda event, e=ents: fet2(e)))   
-    b1 = tk.Button(root, text='Save',  fg = "white",
+    b1 = tk.Button(root, text='KAYDET',  fg = "white",
       bg= "grey", command=(lambda e=ents: fet2(e)))
     b1.pack(side=tk.LEFT, padx=5, pady=5)
-    b2 = tk.Button(root, text='Quit',   fg = "white",
+    b2 = tk.Button(root, text='ÇIKIŞ',   fg = "white",
       bg= "grey", command=root.destroy)
     b2.pack(side=tk.LEFT, padx=5, pady=5) 
 
@@ -190,6 +191,17 @@ def fetch(entries):
                           break
                      jobfile.write(text[i])
                      i=i+1
+        if(b==7):
+                    name=open("filenamefortruba.ink","r")
+                    name.readline()
+                    name.readline()
+                    
+                    
+                    
+                    
+                    
+                    
+                    
        
                 
                 
@@ -456,10 +468,51 @@ def file():
     jobfile=open(namejob,"w")
     namefile.write(namejob)
     
+    if os.path.getsize(name)==0:
+        fileempty=open(name,"w")
+        fileempty.write("#NuNuTRUBA_KUYRUK=short:\n")
+        fileempty.write("#NuNuTRUBA_CPUSAYISI=4:\n")
+        fileempty.write("#NuNuTRUBA_GPUSAYISI=1:\n")
+        fileempty.write("#NuNuTRUBA_PIP=numpy,sys:\n")
+        fileempty.write("#NuNuTRUBA_PARAMETRELER=1,2,3:\n")
+        fileempty.write("#NuNuTRUBA_GIDENDOSYALAR=dosya1,dosya2:\n")
+        fileempty.write("#NuNuTRUBA_DONENDOSYALAR=dosya1,dosya2:\n")
+        fileempty.close()
+        
     pyfile=open(name,"r")
     line=pyfile.readlines()
     lines=str(line)
+    edit=open(name,"a")
     jobfile.write("#!/bin/bash\n")
+    
+
+    
+    if(lines.find('#NuNuTRUBA_KUYRUK')==-1):
+        edit.write("#NuNuTRUBA_KUYRUK=short:\n")  
+        
+    if(lines.find('#NuNuTRUBA_CPUSAYISI')==-1):
+        edit.write("#NuNuTRUBA_CPUSAYISI=4:\n")
+        
+    if(lines.find('#NuNuTRUBA_GPUSAYISI')==-1):
+        edit.write("#NuNuTRUBA_GPUSAYISI=1:\n")
+        
+    if(lines.find('#NuNuTRUBA_PIP')==-1):
+        edit.write("#NuNuTRUBA_PIP=numpy,sys:\n")
+        
+    if(lines.find('#NuNuTRUBA_PARAMETRELER')==-1):
+        edit.write("#NuNuTRUBA_PARAMETRELER=1,2,3:\n")
+        
+    if(lines.find('#NuNuTRUBA_GIDENDOSYALAR')==-1):
+        edit.write("#NuNuTRUBA_GIDENDOSYALAR=:\n")
+        
+    if(lines.find('#NuNuTRUBA_DONENDOSYALAR=')==-1):
+        edit.write("#NuNuTRUBA_DONENDOSYALAR=:\n")     
+    edit.close()
+   
+
+    pyfile=open(name,"r")
+    line=pyfile.readlines()
+    lines=str(line)
     search=lines.find("#NuNuTRUBA_KUYRUK")
     search=search+18
     jobfile.write("#SBATCH -p ")
@@ -479,6 +532,7 @@ def file():
     jobfile.write("\n#SBATCH -j ")
     namejob=name[0:-3]
     jobfile.write(namejob)
+   
     search=lines.find("#NuNuTRUBA_GPUSAYISI")
     search=search+21
     jobfile.write("\n#SBATCH --gres=gpu ")
@@ -491,17 +545,21 @@ def file():
     jobfile.write("\n#SBATCH --qop=normal ")
     jobfile.write("\nmodule load centos7.3/comp/python/3.6.5-gcc")
     jobfile.write("\nmodule load centos7.3/lib/cuda/10.0")
-    search=lines.find("#NuNuTRUBA_PIP")
+    
+    search=lines.find("#NuNuTRUBA_PIP=")
     search=search+15
+
     jobfile.write("\npip install user --user ")
     while True:
-        jobfile.write(lines[search])
-        search=search+1
-        if(lines[search]==","):
-            jobfile.write("\npip install user --user ")
+            jobfile.write(lines[search])
             search=search+1
-        if(lines[search]==":"):  
-            break
+            if(lines[search]==","):
+                jobfile.write("\npip install user --user ")
+                search=search+1
+            if(lines[search]==":"):  
+                    break
+        
+
     search=lines.find("#NuNuTRUBA_PARAMETRELER")
     search=search+24
     com=open("command.ink","w")
@@ -523,6 +581,7 @@ def file():
     jobfile.write(name)
     jobfile.write(" ")
     jobfile.write("${1}")
+   
     
                 
     namejob=namejob+".job"   
@@ -545,22 +604,22 @@ def file():
     
     
     root.bind('<Return>', (lambda event, e=ents: fetch(e)))   
-    b1 = tk.Button(root, text='EDIT',  fg = "white",
+    b1 = tk.Button(root, text='DÜZENLE',  fg = "white",
       bg= "grey", command=(lambda e=ents: fetch(e)))
     b1.pack(side=tk.LEFT, padx=5, pady=5)
    
     
-    b2 = tk.Button(root, text='SEND',   fg = "white",
+    b2 = tk.Button(root, text='GÖNDER',   fg = "white",
       bg= "grey", command=send)
     b2.pack(side=tk.LEFT, padx=5, pady=5)  
-    b2 = tk.Button(root, text='OUTPUT',   fg = "white",
+    b2 = tk.Button(root, text='ÇIKTI',   fg = "white",
       bg= "grey", command=output)
     b2.pack(side=tk.LEFT, padx=5, pady=5)  
     
    
     
      
-    b2 = tk.Button(root, text='QUIT',   fg = "white",
+    b2 = tk.Button(root, text='ÇIKIŞ',   fg = "white",
       bg= "grey", command=root.destroy)
     b2.pack(side=tk.LEFT, padx=5, pady=5) 
     
@@ -568,7 +627,7 @@ def file():
     
 
 root=Tk()
-root.title("   PROJE")
+root.title("   NuNuTRUBA")
  
 root.config(bg="black")
 yazı = Label(root,text = "NuNuTRUBA", 
@@ -579,7 +638,7 @@ yazı = Label(root,text = "NuNuTRUBA",
             pady=35).pack(fill=X)
 
 start=tkinter.Button(root, 
-      text="ENTER TRUBA",
+      text="TRUBA GİRİŞ",
       command = file ,
       fg = "white",
       bg= "black",
@@ -587,7 +646,7 @@ start=tkinter.Button(root,
       padx=25,
       pady=25).pack()
 setting=tkinter.Button(root, 
-      text="SETTINGS",
+      text="AYARLAR",
       command=settings,
       fg = "white",
       bg= "black",
@@ -596,7 +655,7 @@ setting=tkinter.Button(root,
       pady=25).pack()
 
 buton2=tkinter.Button(root, 
-      text="QUIT",
+      text="ÇIKIŞ",
       command = root.destroy,
       fg = "white",
       bg= "black",

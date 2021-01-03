@@ -191,11 +191,7 @@ def fetch(entries):
                           break
                      jobfile.write(text[i])
                      i=i+1
-        if(b==7):
-                    name=open("filenamefortruba.ink","r")
-                    name.readline()
-                    name.readline()
-                    
+      
                     
                     
                     

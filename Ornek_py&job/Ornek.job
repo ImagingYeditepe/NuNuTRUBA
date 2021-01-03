@@ -1,0 +1,12 @@
+#!/bin/bash
+#SBATCH -p short
+#SBATCH -c 4
+#SBATCH -j Ornek
+#SBATCH --gres=gpu 1
+#SBATCH --time=02-00:00
+#SBATCH --qop=normal 
+module load centos7.3/comp/python/3.6.5-gcc
+module load centos7.3/lib/cuda/10.0
+pip install user --user numpy
+pip install user --user sys
+python3 Ornek.py ${1}

@@ -237,14 +237,14 @@ def send():
     filename=name.readline()
     filename=filename.rstrip()
     
-    liste2=['/home',username,filename]
+    liste2=['/truba','home',username,filename]
     gonderilen='/'.join(liste2)
     scp.put(adres1, gonderilen)
     
     scp = SCPClient(client.get_transport())
     filename2=filename[0:-3]
     filename2=filename2+".job"
-    liste2=['/home',username,filename2]
+    liste2=['/truba','home',username,filename2]
     gonderilen='/'.join(liste2)
     scp.put(adres2, gonderilen)
 
@@ -265,7 +265,7 @@ def send():
                 file=lines[i:search]
                 from scp import SCPClient                     
                 scp = SCPClient(client.get_transport())
-                liste=['/home',username,file]
+                liste=['/truba','home',username,file]
                 host='/'.join(liste)
                 
                 name=open("filenamefortruba.ink","r")
@@ -290,7 +290,7 @@ def send():
                 file=lines[i:search]
                 from scp import SCPClient                     
                 scp = SCPClient(client.get_transport())
-                liste=['/home',username,file]
+                liste=['/truba','home',username,file]
                 host='/'.join(liste)
                 
                 name=open("filenamefortruba.ink","r")
@@ -377,7 +377,7 @@ def output():
                 file=lines[i:search]
                 from scp import SCPClient                     
                 scp = SCPClient(client.get_transport())
-                liste=['/home',username,file]
+                liste=['/truba','home',username,file]
                 alinan='/'.join(liste)
                 
                 name=open("filenamefortruba.ink","r")
@@ -402,7 +402,7 @@ def output():
                 file=lines[i:search]
                 from scp import SCPClient                     
                 scp = SCPClient(client.get_transport())
-                liste=['/home',username,file]
+                liste=['/truba','home',username,file]
                 alinan='/'.join(liste)
                 
                 name=open("filenamefortruba.ink","r")

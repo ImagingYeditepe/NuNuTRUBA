@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+ # -*- coding: utf-8 -*-
 """
 Created on Sun Jan  3 12:10:49 2021
 
@@ -319,7 +319,7 @@ def send():
         client.connect(hostname=hostname, username=username, password=password)
     except:
         print("[!] Cannot connect to the SSH Server")
-    print(sonuc.decode("utf-8"))
+    #print(sonuc.decode("utf-8"))
     name=open("filenamefortruba.ink","r")
     readcom=open("command.ink","r")
     commands=readcom.readlines()

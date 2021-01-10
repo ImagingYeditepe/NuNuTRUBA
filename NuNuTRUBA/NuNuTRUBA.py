@@ -4,7 +4,6 @@ Created on Sun Jan  3 12:10:49 2021
 
 @author: Gözde
 
-UPDATE1
 """
 
 from tkinter import *
@@ -55,6 +54,7 @@ def make2(root, works):
 def settings():
     root = tk.Tk()
     root.config(bg="white")
+    root.title("   NuNuTRUBA")
    
 
     
@@ -241,13 +241,38 @@ def send():
     gonderilen='/'.join(liste2)
     scp.put(adres1, gonderilen)
     
+    root=Tk()
+    root.title("   NuNuTRUBA")
+    
+    name=open("filenamefortruba.ink","r")
+    name.readline()
+    pyname=name.readline()
+    pyname=pyname.rstrip()
+    bir=pyname+"  gönderildi "
+    lab=Label(root,text=bir).pack()
+    
+    
+    
+    
     scp = SCPClient(client.get_transport())
     filename2=filename[0:-3]
     filename2=filename2+".job"
     liste2=['/truba','home',username,filename2]
     gonderilen='/'.join(liste2)
     scp.put(adres2, gonderilen)
-
+    jobname=name.readline()
+    bir=jobname+"  gönderildi "
+    lab=Label(root,text=bir).pack()
+    
+    
+    
+    client = paramiko.SSHClient()
+    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    try:
+        client.connect(hostname=hostname, username=username, password=password)
+    except:
+        print("[!] Cannot connect to the SSH Server")
+    
     name=open("filenamefortruba.ink","r")
     name.readline()
     filename=name.readline()
@@ -260,13 +285,13 @@ def send():
     i=search
     file=[]
     while True:
+            if(lines[search]==":"):
+                break
             search=search+1
             if(lines[search]==","):
                 file=lines[i:search]
-                from scp import SCPClient                     
-                scp = SCPClient(client.get_transport())
                 liste=['/truba','home',username,file]
-                host='/'.join(liste)
+                host='/'.join(liste) 
                 
                 name=open("filenamefortruba.ink","r")
                 adres=name.readline()
@@ -281,8 +306,12 @@ def send():
                 adres=adres[::-1]
                 liste2=[adres,file]
                 local='/'.join(liste2)
+                from scp import SCPClient                     
+                scp = SCPClient(client.get_transport())
                 scp.put(local,host)
-               
+                bir=file+"  gönderildi "
+                lab=Label(root,text=bir).pack()
+                
                 
                 i=search+1
                 
@@ -306,7 +335,9 @@ def send():
                 adres=adres[::-1]
                 liste2=[adres,file]
                 local='/'.join(liste2)
-                scp.put(local,host)                    
+                scp.put(local,host)
+                bir=file+"  gönderildi "
+                lab=Label(root,text=bir).pack()                    
                         
                 
                 i=search+1
@@ -319,7 +350,8 @@ def send():
         client.connect(hostname=hostname, username=username, password=password)
     except:
         print("[!] Cannot connect to the SSH Server")
-    print(sonuc.decode("utf-8"))
+
+   
     name=open("filenamefortruba.ink","r")
     readcom=open("command.ink","r")
     commands=readcom.readlines()
@@ -371,6 +403,9 @@ def output():
     search=search+25
     i=search
     file=[]
+    root=Tk()
+    root.title("   NuNuTRUBA")
+    
     while True:
             search=search+1
             if(lines[search]==","):
@@ -394,8 +429,8 @@ def output():
                 liste2=[adres,file]
                 gelen='/'.join(liste2)
                 scp.get(alinan,gelen)
-               
-                
+                dosya=file +"   alındı"
+                lab=Label(root,text=dosya).pack()                
                 i=search+1
                 
             if(lines[search]==":"):  
@@ -419,7 +454,8 @@ def output():
                 liste2=[adres,file]
                 gelen='/'.join(liste2)
                 scp.get(alinan,gelen)                    
-                        
+                dosya=file +"   alındı"
+                lab=Label(root,text=dosya).pack()                           
                 
                 i=search+1
                         
@@ -446,6 +482,7 @@ def makeform(root, fields):
 def file():
     root = tk.Tk()
     root.geometry("600x800")
+    root.title("   NuNuTRUBA")
     root.config(bg="white")
     filename=tkinter.filedialog.askopenfilename()
 
@@ -577,10 +614,12 @@ def file():
     jobfile.write(name)
     jobfile.write(" ")
     jobfile.write("${1}")
-   
+
     
                 
-    namejob=namejob+".job"   
+    namejob=namejob+".job"  
+    file11=open(namejob,"w",newline='\n')
+    file11.close()
     jobfile=open(namejob,"r")
     metin1=jobfile.readlines()
     metin=str(metin1)
@@ -593,8 +632,13 @@ def file():
     labelmet=Label(root, text=metin2, fg = "white", 
              bg= "grey",font = ("Open Sans","11","normal")).pack()
     
+    jobfile.close()
+    com.close()
+    jobfile.close()
+    namefile.close()
+    edit.close()
+    pyfile.close()
     
-
     ents = makeform(root, fields)
     
     

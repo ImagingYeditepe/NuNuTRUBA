@@ -17,8 +17,7 @@ import os
 import scp
 
 
-
-fields = '#SBATCH -p', '#SBATCH -c', '#SBATCH --gres=gpu:', '#SBATCH --time =', '#SBATCH --qos =', 'pips = '
+fields = 'KUYRUK', 'CPUSAYISI', 'GPUSAYISI', 'Time', 'Priority ', 'Pips '
 works =   'Ip/Host Adı','Kullanıcı Adı','Şifre'
     
 
@@ -252,7 +251,7 @@ def send():
     lab=Label(root,text=bir).pack()
     
     
-    
+     
     
     scp = SCPClient(client.get_transport())
     filename2=filename[0:-3]
@@ -498,7 +497,7 @@ def file():
     namejob=name[0:-3]
     namejob=namejob+".job"
     jobname=namejob
-    jobfile=open(namejob,"w")
+    jobfile=open(namejob,"w",newline='\n')
     namefile.write(namejob)
     
     if os.path.getsize(name)==0:
@@ -618,8 +617,6 @@ def file():
     
                 
     namejob=namejob+".job"  
-    file11=open(namejob,"w",newline='\n')
-    file11.close()
     jobfile=open(namejob,"r")
     metin1=jobfile.readlines()
     metin=str(metin1)

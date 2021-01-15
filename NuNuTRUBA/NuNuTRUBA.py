@@ -17,7 +17,8 @@ import os
 import scp
 
 
-fields = 'KUYRUK', 'CPUSAYISI', 'GPUSAYISI', 'Time', 'Priority ', 'Pips '
+
+fields = 'KUYRUK', 'CPU SAYISI', 'GPU SAYISI','PİPS ', "PARAMETRELER", 'GİDEN DOSYALAR', "DÖNEN DOSYALAR"
 works =   'Ip/Host Adı','Kullanıcı Adı','Şifre'
     
 
@@ -96,6 +97,7 @@ def fetch(entries):
     jobfile=open(namejob,"w")
     jobfile.write("#!/bin/bash") 
     b=0
+    
     for entry in entries:
         b=b+1
         field = entry[0]
@@ -141,23 +143,13 @@ def fetch(entries):
                         break
             else:
                 jobfile.write(text)
-        if(b==4):
-            jobfile.write("\n#SBATCH --time= ")
-            if Enquiry(text):
-                jobfile.write("02-00:00")
-            else:
-                jobfile.write(text)
-        if(b==5):
-            jobfile.write("\n#SBATCH --qop= ")
-            if Enquiry(text):
-                jobfile.write("normal")
-            else:
-                jobfile.write(text)
    
-        if (b==6):
+        if (b==4):
+             jobfile.write("\n#SBATCH --time=02-00:00")
+             jobfile.write("\n#SBATCH --qop=normal")
              jobfile.write("\nmodule load centos7.3/comp/python/3.6.5-gcc")
              jobfile.write("\nmodule load centos7.3/lib/cuda/10.0")
-             b=b+1
+           
              textstr=str(text)
              x=0
              search=lines.find("#NuNuTRUBA_PIP")
@@ -190,16 +182,90 @@ def fetch(entries):
                           break
                      jobfile.write(text[i])
                      i=i+1
-      
-                    
-                    
-                    
-                    
-                    
-                    
-       
+                     
+        if (b==5):
+         name=open("filenamefortruba.ink","r")
+         name.readline()
+         filename=name.readline()
+         filename=filename.rstrip()
+         jobname=name.readline()
+         jobname=jobname.rstrip()
+         pyfile=open(filename,"r")
+         line=pyfile.readlines()
+         lines=str(line)   
+         search=lines.find("#NuNuTRUBA_PARAMETRELER")
+         search=search+24
+         com=open("command.ink","w")
+         com.write("sbatch ")
+         com.write(jobname)
+         com.write(" ")
+         if Enquiry(text):
+           while True:
+            com.write(lines[search])
+            search=search+1
+            if(lines[search]==","):
                 
-                
+                com.write(",sbatch ")
+                com.write(jobname)
+                com.write(" ")
+                search=search+1
+            if(lines[search]==":"):  
+                     break
+            com.write(",:") 
+         else:
+             i=0
+             while True:
+               if text[i]==",":
+                   com.write(",sbatch ")
+                   com.write(jobname)
+                   com.write(" ")
+                   i=i+1
+               com.write(text[i])  
+               i=i+1
+               if text[i]==":":
+                   com.write(",:") 
+                   break
+        if(b==6):
+            if Enquiry(text):
+                 a=1
+            else:    
+             name=open("filenamefortruba.ink","r")
+             read=name.readlines()[9:11]
+             
+             name=open("filenamefortruba.ink","r")
+             lines=name.readlines()[0:8]
+           
+             name1=open("filenamefortruba.ink","w")
+             for line in lines:
+                 name1.write(line)
+             name1.write("#NuNuTRUBA_GIDENDOSYALAR=")  
+             name1.write(text)
+             name1.write("\n")
+             read=str(read)
+             read=read.replace("[","")
+             read=read.replace("'","")
+             read=read.replace("]","")
+             name1.write(read) 
+             name1.close()
+             
+        if(b==7):
+            if Enquiry(text):
+                 a=1
+            else:    
+           
+             name=open("filenamefortruba.ink","r")
+             lines=name.readlines()[0:9]
+           
+             name1=open("filenamefortruba.ink","w")
+             for line in lines:
+                 name1.write(line)
+             name1=open("filenamefortruba.ink","a")
+             name1.write("#NuNuTRUBA_DONENDOSYALAR=")
+             name1.write(text)
+             
+                       
+                     
+                     
 
        
 def send():
@@ -251,7 +317,7 @@ def send():
     lab=Label(root,text=bir).pack()
     
     
-     
+    
     
     scp = SCPClient(client.get_transport())
     filename2=filename[0:-3]
@@ -273,11 +339,7 @@ def send():
         print("[!] Cannot connect to the SSH Server")
     
     name=open("filenamefortruba.ink","r")
-    name.readline()
-    filename=name.readline()
-    filename=filename.rstrip()
-    pyfile=open(filename,"r")
-    line=pyfile.readlines()
+    line=name.readlines()
     lines=str(line)
     search=lines.find("#NuNuTRUBA_GIDENDOSYALAR=")
     search=search+25
@@ -350,7 +412,8 @@ def send():
     except:
         print("[!] Cannot connect to the SSH Server")
 
-   
+    stdin,stdout,stderr = client.exec_command("python3 Ornek.py")
+    sonuc = stdout.read()
     name=open("filenamefortruba.ink","r")
     readcom=open("command.ink","r")
     commands=readcom.readlines()
@@ -392,11 +455,7 @@ def output():
         print("[!] Cannot connect to the SSH Server")
     
     name=open("filenamefortruba.ink","r")
-    name.readline()
-    filename=name.readline()
-    filename=filename.rstrip()
-    pyfile=open(filename,"r")
-    line=pyfile.readlines()
+    line=name.readlines()
     lines=str(line)
     search=lines.find("#NuNuTRUBA_DONENDOSYALAR=")
     search=search+25
@@ -497,7 +556,7 @@ def file():
     namejob=name[0:-3]
     namejob=namejob+".job"
     jobname=namejob
-    jobfile=open(namejob,"w",newline='\n')
+    jobfile=open(namejob,"w")
     namefile.write(namejob)
     
     if os.path.getsize(name)==0:
@@ -507,9 +566,10 @@ def file():
         fileempty.write("#NuNuTRUBA_GPUSAYISI=1:\n")
         fileempty.write("#NuNuTRUBA_PIP=numpy,sys:\n")
         fileempty.write("#NuNuTRUBA_PARAMETRELER=1,2,3:\n")
-        fileempty.write("#NuNuTRUBA_GIDENDOSYALAR=dosya1,dosya2:\n")
-        fileempty.write("#NuNuTRUBA_DONENDOSYALAR=dosya1,dosya2:\n")
+        fileempty.write("#NuNuTRUBA_GIDENDOSYALAR=:\n")
+        fileempty.write("#NuNuTRUBA_DONENDOSYALAR=:\n")
         fileempty.close()
+        
         
     pyfile=open(name,"r")
     line=pyfile.readlines()
@@ -546,17 +606,22 @@ def file():
     line=pyfile.readlines()
     lines=str(line)
     search=lines.find("#NuNuTRUBA_KUYRUK")
+    namefile.write("\n#NuNuTRUBA_KUYRUK =")
     search=search+18
     jobfile.write("#SBATCH -p ")
     while True:
+        namefile.write(lines[search])
         jobfile.write(lines[search])
         search=search+1
         if(lines[search]==":"):
             break
+      
     search=lines.find("#NuNuTRUBA_CPUSAYISI")
+    namefile.write("\n#NuNuTRUBA_CPUSAYISI =")
     search=search+21
     jobfile.write("\n#SBATCH -c ")
     while True:
+        namefile.write(lines[search])
         jobfile.write(lines[search])
         search=search+1
         if(lines[search]==":"):
@@ -564,11 +629,12 @@ def file():
     jobfile.write("\n#SBATCH -j ")
     namejob=name[0:-3]
     jobfile.write(namejob)
-   
     search=lines.find("#NuNuTRUBA_GPUSAYISI")
+    namefile.write("\n#NuNuTRUBA_GPUSAYISI =")
     search=search+21
     jobfile.write("\n#SBATCH --gres=gpu ")
     while True:
+        namefile.write(lines[search])
         jobfile.write(lines[search])
         search=search+1
         if(lines[search]==":"):
@@ -580,12 +646,14 @@ def file():
     
     search=lines.find("#NuNuTRUBA_PIP=")
     search=search+15
-
+    namefile.write("\n#NuNuTRUBA_PIP=")
     jobfile.write("\npip install user --user ")
     while True:
+            namefile.write(lines[search])
             jobfile.write(lines[search])
             search=search+1
             if(lines[search]==","):
+                namefile.write(",")
                 jobfile.write("\npip install user --user ")
                 search=search+1
             if(lines[search]==":"):  
@@ -594,14 +662,17 @@ def file():
 
     search=lines.find("#NuNuTRUBA_PARAMETRELER")
     search=search+24
+    namefile.write("\n#NuNuTRUBA_PARAMETRELER=")
     com=open("command.ink","w")
     com.write("sbatch ")
     com.write(jobname)
     com.write(" ")
     while True:
+            namefile.write(lines[search])
             com.write(lines[search])
             search=search+1
             if(lines[search]==","):
+                namefile.write(",")
                 com.write(",sbatch ")
                 com.write(jobname)
                 com.write(" ")
@@ -613,28 +684,53 @@ def file():
     jobfile.write(name)
     jobfile.write(" ")
     jobfile.write("${1}")
-
+    search=lines.find("#NuNuTRUBA_GIDENDOSYALAR=")
+    namefile.write("\n#NuNuTRUBA_GIDENDOSYALAR=")
+    search=search+25
+    while True:
+            if(lines[search]==":"):
+                break
+            namefile.write(lines[search])
+            search=search+1
+            if(lines[search]==","):
+                namefile.write(", ")
+                search=search+1
+            if(lines[search]==":"):  
+                    break
+    search=lines.find("#NuNuTRUBA_DONENDOSYALAR=")
+    namefile.write("\n#NuNuTRUBA_DONENDOSYALAR=")
+    search=search+25
+    while True:
+            if(lines[search]==":"):
+                break
+            namefile.write(lines[search])
+            search=search+1
+            if(lines[search]==","):
+                namefile.write(", ")
+                search=search+1
+            if(lines[search]==":"):  
+                    break
     
-                
-    namejob=namejob+".job"  
-    jobfile=open(namejob,"r")
-    metin1=jobfile.readlines()
-    metin=str(metin1)
-    metin2=metin.replace(",","\n")
-    metin2=metin2.replace("'","")
-    metin2=metin2.replace("[","")
-    metin2=metin2.replace("]","")
-
-   
-    labelmet=Label(root, text=metin2, fg = "white", 
-             bg= "grey",font = ("Open Sans","11","normal")).pack()
     
-    jobfile.close()
-    com.close()
-    jobfile.close()
-    namefile.close()
-    edit.close()
-    pyfile.close()
+    namefile=open("filenamefortruba.ink","r")
+    namefile.readline()
+    namefile.readline()
+    namefile.readline()
+    bir=namefile.readline()
+    lab1=Label(root,text=bir).pack(fill=tk.X)
+    bir=namefile.readline()
+    lab1=Label(root,text=bir).pack(fill=tk.X)
+    bir=namefile.readline()
+    lab1=Label(root,text=bir).pack(fill=tk.X)    
+    bir=namefile.readline()
+    lab1=Label(root,text=bir).pack(fill=tk.X)
+    bir=namefile.readline()
+    lab1=Label(root,text=bir).pack(fill=tk.X)                
+    bir=namefile.readline()
+    lab1=Label(root,text=bir).pack(fill=tk.X) 
+    bir=namefile.readline()
+    lab1=Label(root,text=bir).pack(fill=tk.X) 
+    
     
     ents = makeform(root, fields)
     
@@ -666,6 +762,7 @@ def file():
 root=Tk()
 root.title("   NuNuTRUBA")
  
+
 root.config(bg="black")
 yazı = Label(root,text = "NuNuTRUBA", 
              fg = "white", 
@@ -682,6 +779,7 @@ start=tkinter.Button(root,
       font = ("Open Sans","30","bold"),
       padx=25,
       pady=25).pack()
+
 setting=tkinter.Button(root, 
       text="AYARLAR",
       command=settings,
@@ -700,9 +798,5 @@ buton2=tkinter.Button(root,
       padx=25,
       pady=25).pack()
     
-
-        
-    
-
 
 root.mainloop()

@@ -556,7 +556,7 @@ def file():
     namejob=name[0:-3]
     namejob=namejob+".job"
     jobname=namejob
-    jobfile=open(namejob,"w")
+    jobfile=open(namejob,"w",newline="\n")
     namefile.write(namejob)
     
     if os.path.getsize(name)==0:

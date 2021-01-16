@@ -15,10 +15,11 @@ import tkinter as tk
 from PIL import Image, ImageTk 
 import os
 import scp
+import paramiko
 
 
 
-fields = 'KUYRUK', 'CPU SAYISI', 'GPU SAYISI','PİPS ', "PARAMETRELER", 'GİDEN DOSYALAR', "DÖNEN DOSYALAR"
+fields = 'KUYRUK', 'CPU SAYISI', 'GPU SAYISI','PİPS ', "PARAMETRELER", 'GİDEN DOSYALAR', "DÖNEN DOSYALAR","KOMUT"
 works =   'Ip/Host Adı','Kullanıcı Adı','Şifre'
     
 
@@ -210,8 +211,9 @@ def fetch(entries):
                 com.write(" ")
                 search=search+1
             if(lines[search]==":"):  
+                     com.write(",:") 
                      break
-            com.write(",:") 
+         
          else:
              i=0
              while True:
@@ -262,7 +264,13 @@ def fetch(entries):
              name1=open("filenamefortruba.ink","a")
              name1.write("#NuNuTRUBA_DONENDOSYALAR=")
              name1.write(text)
-             
+        if(b==8):
+           if Enquiry(text):
+               a=5
+           else:    
+            dosya=open("command.ink","a")
+            dosya.write("\n")
+            dosya.write(text)
                        
                      
                      
@@ -306,15 +314,6 @@ def send():
     gonderilen='/'.join(liste2)
     scp.put(adres1, gonderilen)
     
-    root=Tk()
-    root.title("   NuNuTRUBA")
-    
-    name=open("filenamefortruba.ink","r")
-    name.readline()
-    pyname=name.readline()
-    pyname=pyname.rstrip()
-    bir=pyname+"  gönderildi "
-    lab=Label(root,text=bir).pack()
     
     
     
@@ -325,9 +324,7 @@ def send():
     liste2=['/truba','home',username,filename2]
     gonderilen='/'.join(liste2)
     scp.put(adres2, gonderilen)
-    jobname=name.readline()
-    bir=jobname+"  gönderildi "
-    lab=Label(root,text=bir).pack()
+   
     
     
     
@@ -370,8 +367,7 @@ def send():
                 from scp import SCPClient                     
                 scp = SCPClient(client.get_transport())
                 scp.put(local,host)
-                bir=file+"  gönderildi "
-                lab=Label(root,text=bir).pack()
+            
                 
                 
                 i=search+1
@@ -397,8 +393,7 @@ def send():
                 liste2=[adres,file]
                 local='/'.join(liste2)
                 scp.put(local,host)
-                bir=file+"  gönderildi "
-                lab=Label(root,text=bir).pack()                    
+                                
                         
                 
                 i=search+1
@@ -411,9 +406,7 @@ def send():
         client.connect(hostname=hostname, username=username, password=password)
     except:
         print("[!] Cannot connect to the SSH Server")
-
-    stdin,stdout,stderr = client.exec_command("python3 Ornek.py")
-    sonuc = stdout.read()
+        
     name=open("filenamefortruba.ink","r")
     readcom=open("command.ink","r")
     commands=readcom.readlines()
@@ -461,8 +454,6 @@ def output():
     search=search+25
     i=search
     file=[]
-    root=Tk()
-    root.title("   NuNuTRUBA")
     
     while True:
             search=search+1
@@ -487,8 +478,7 @@ def output():
                 liste2=[adres,file]
                 gelen='/'.join(liste2)
                 scp.get(alinan,gelen)
-                dosya=file +"   alındı"
-                lab=Label(root,text=dosya).pack()                
+                             
                 i=search+1
                 
             if(lines[search]==":"):  
@@ -512,15 +502,46 @@ def output():
                 liste2=[adres,file]
                 gelen='/'.join(liste2)
                 scp.get(alinan,gelen)                    
-                dosya=file +"   alındı"
-                lab=Label(root,text=dosya).pack()                           
+                                      
                 
                 i=search+1
                         
                 break
+                
+def commands():
+    dosya=open("command.ink","r")
+    dosya.readline()
+    com=dosya.readline()
+    com=com.rstrip()
+    print(com)
+    send=open("settings.ink","r")
+    ilk=send.readline() 
+    hostname=ilk.rstrip()
     
-              
-     
+    ilk=send.readline()
+    username=ilk.rstrip()
+    
+    ilk=send.readline() 
+    password=ilk.rstrip()
+    
+    client = paramiko.SSHClient()
+    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    try:
+        client.connect(hostname=hostname, username=username, password=password)
+    except:
+        print("[!] Cannot connect to the SSH Server")
+
+    stdin,stdout,stderr = client.exec_command(com)
+    sonuc = stdout.read()    
+    print(sonuc.decode("utf-8"))
+    aa=sonuc.decode("utf-8")
+    root = tk.Tk()
+    lab=Label(root,text=aa).pack()
+
+
+
+
+
         
 def makeform(root, fields):
     entries = []
@@ -556,7 +577,7 @@ def file():
     namejob=name[0:-3]
     namejob=namejob+".job"
     jobname=namejob
-    jobfile=open(namejob,"w")
+    jobfile=open(namejob,"w",newline="\n")
     namefile.write(namejob)
     
     if os.path.getsize(name)==0:
@@ -730,10 +751,14 @@ def file():
     lab1=Label(root,text=bir).pack(fill=tk.X) 
     bir=namefile.readline()
     lab1=Label(root,text=bir).pack(fill=tk.X) 
+    bir=namefile.readline()
+    lab1=Label(root,text=" KOMUT = sacct").pack(fill=tk.X) 
     
     
     ents = makeform(root, fields)
-    
+    dosya=open("command.ink","a")
+    dosya.write("\n")
+    dosya.write("sacct")
     
     
     root.bind('<Return>', (lambda event, e=ents: fetch(e)))   
@@ -745,6 +770,15 @@ def file():
     b2 = tk.Button(root, text='GÖNDER',   fg = "white",
       bg= "grey", command=send)
     b2.pack(side=tk.LEFT, padx=5, pady=5)  
+    
+     
+    b2 = tk.Button(root, text='ÇALIŞTIR',   fg = "white",
+      bg= "grey", command=commands)
+    b2.pack(side=tk.LEFT, padx=5, pady=5)  
+    
+
+    
+    b1.pack(side=tk.LEFT, padx=5, pady=5) 
     b2 = tk.Button(root, text='ÇIKTI',   fg = "white",
       bg= "grey", command=output)
     b2.pack(side=tk.LEFT, padx=5, pady=5)  

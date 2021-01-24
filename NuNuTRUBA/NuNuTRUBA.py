@@ -131,11 +131,11 @@ def fetch(entries):
             else:
                 jobfile.write(text)
         if(b==3):
-            jobfile.write("\n#SBATCH -j ")
+            jobfile.write("\n#SBATCH -J ")
             jobfile.write(namejob)
             search=lines.find("#NuNuTRUBA_GPUSAYISI")
             search=search+21
-            jobfile.write("\n#SBATCH --gres=gpu ")
+            jobfile.write("\n#SBATCH --gres=gpu:")
             if Enquiry(text):
                 while True:
                     jobfile.write(lines[search])
@@ -146,8 +146,8 @@ def fetch(entries):
                 jobfile.write(text)
    
         if (b==4):
-             jobfile.write("\n#SBATCH --time=02-00:00")
-             jobfile.write("\n#SBATCH --qop=normal")
+             jobfile.write("\n#SBATCH --time=00-02:00")
+             #jobfile.write("\n#SBATCH --qop=normal")
              jobfile.write("\nmodule load centos7.3/comp/python/3.6.5-gcc")
              jobfile.write("\nmodule load centos7.3/lib/cuda/10.0")
            
@@ -155,13 +155,13 @@ def fetch(entries):
              x=0
              search=lines.find("#NuNuTRUBA_PIP")
              search=search+15
-             jobfile.write("\npip install user --user ")
+             jobfile.write("\npip install --user ")
              if Enquiry(text):
                  while True:
                      jobfile.write(lines[search])
                      search=search+1
                      if(lines[search]==","):
-                         jobfile.write("\npip install user --user ")
+                         jobfile.write("\npip install --user ")
                          search=search+1
                      if(lines[search]==":"):  
                           jobfile.write("\npython3 ")
@@ -173,7 +173,7 @@ def fetch(entries):
                  i=0
                  while True:
                      if(text[i]==","):
-                         jobfile.write("\npip install user --user ")
+                         jobfile.write("\npip install --user ")
                          i=i+1
                      if(text[i]==":"):
                           jobfile.write("\npython3 ")
@@ -643,35 +643,35 @@ def file():
         search=search+1
         if(lines[search]==":"):
             break
-    jobfile.write("\n#SBATCH -j ")
+    jobfile.write("\n#SBATCH -J ")
     namejob=name[0:-3]
     jobfile.write(namejob)
     search=lines.find("#NuNuTRUBA_GPUSAYISI")
     namefile.write("\n#NuNuTRUBA_GPUSAYISI =")
     search=search+21
-    jobfile.write("\n#SBATCH --gres=gpu ")
+    jobfile.write("\n#SBATCH --gres=gpu:")
     while True:
         namefile.write(lines[search])
         jobfile.write(lines[search])
         search=search+1
         if(lines[search]==":"):
             break
-    jobfile.write("\n#SBATCH --time=02-00:00")
-    jobfile.write("\n#SBATCH --qop=normal ")
+    jobfile.write("\n#SBATCH --time=00-02:00")
+    #jobfile.write("\n#SBATCH --qop=normal ")
     jobfile.write("\nmodule load centos7.3/comp/python/3.6.5-gcc")
     jobfile.write("\nmodule load centos7.3/lib/cuda/10.0")
     
     search=lines.find("#NuNuTRUBA_PIP=")
     search=search+15
     namefile.write("\n#NuNuTRUBA_PIP=")
-    jobfile.write("\npip install user --user ")
+    jobfile.write("\npip install --user ")
     while True:
             namefile.write(lines[search])
             jobfile.write(lines[search])
             search=search+1
             if(lines[search]==","):
                 namefile.write(",")
-                jobfile.write("\npip install user --user ")
+                jobfile.write("\npip install --user ")
                 search=search+1
             if(lines[search]==":"):  
                     break

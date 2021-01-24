@@ -533,13 +533,9 @@ def commands():
 
     stdin,stdout,stderr = client.exec_command(com)
     sonuc = stdout.read()    
-    print(sonuc.decode("utf-8"))
     aa=sonuc.decode("utf-8")
     root = tk.Tk()
     lab=Label(root,text=aa).pack()
-
-
-
 
 
         
@@ -790,13 +786,67 @@ def file():
       bg= "grey", command=root.destroy)
     b2.pack(side=tk.LEFT, padx=5, pady=5) 
     
-   
+    
+def deneme():
+    
+    send=open("settings.ink","r")
+    ilk=send.readline() 
+    hostname=ilk.rstrip()
+        
+    ilk=send.readline()
+    username=ilk.rstrip()
+    
+    ilk=send.readline() 
+    password=ilk.rstrip()
+    
+    client = paramiko.SSHClient()
+    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    try:
+        client.connect(hostname=hostname, username=username, password=password)
+    except:
+        print("[!] Cannot connect to the SSH Server")
+
+    stdin,stdout,stderr = client.exec_command("sacct")
+    sonuc = stdout.read()    
+    aa=sonuc.decode("utf-8")
+    lab=Label(root,text=aa).pack(side=RIGHT)
     
 
 root=Tk()
 root.title("   NuNuTRUBA")
- 
 
+send=open("settings.ink","r")
+ilk=send.readline() 
+hostname=ilk.rstrip()
+    
+ilk=send.readline()
+username=ilk.rstrip()
+    
+ilk=send.readline() 
+password=ilk.rstrip()
+    
+client = paramiko.SSHClient()
+client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+try:
+        client.connect(hostname=hostname, username=username, password=password)
+except:
+        print("[!] Cannot connect to the SSH Server")
+
+stdin,stdout,stderr = client.exec_command("sacct")
+sonuc = stdout.read()    
+aa=sonuc.decode("utf-8")
+lab=Label(root,text=aa).pack(side=LEFT)
+
+
+yenils=tkinter.Button(root, 
+      text="YENİLE",
+      command=deneme,
+      fg = "white",
+      bg= "black",
+      font = ("Open Sans","7","bold"),
+      padx=8,  
+      pady=8)
+yenils.place(x=1,y=150)
 root.config(bg="black")
 yazı = Label(root,text = "NuNuTRUBA", 
              fg = "white", 
@@ -822,6 +872,7 @@ setting=tkinter.Button(root,
       font = ("Open Sans","30","bold"),
       padx=25,
       pady=25).pack()
+
 
 buton2=tkinter.Button(root, 
       text="ÇIKIŞ",

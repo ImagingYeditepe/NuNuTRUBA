@@ -20,7 +20,7 @@ import paramiko
 
 
 fields = 'KUYRUK', 'CPU SAYISI', 'GPU SAYISI','PİPS ', "PARAMETRELER", 'GİDEN DOSYALAR', "DÖNEN DOSYALAR","KOMUT"
-works =   'Ip/Host Adı','Kullanıcı Adı','Şifre'
+works =  'Ip/Host Adı','Kullanıcı Adı','Şifre'
     
 
  
@@ -98,7 +98,7 @@ def fetch(entries):
     jobfile=open(namejob,"w")
     jobfile.write("#!/bin/bash") 
     b=0
-    
+    x=0
     for entry in entries:
         b=b+1
         field = entry[0]
@@ -110,10 +110,11 @@ def fetch(entries):
             search=search+18
             jobfile.write("\n#SBATCH -p ")
             if Enquiry(text):
+                x=search
                 while True:
                     jobfile.write(lines[search])
                     search=search+1
-                    if(lines[search]==":"):
+                    if(lines[search]==":"):                       
                         break
             else:
                 jobfile.write(text)
@@ -146,8 +147,8 @@ def fetch(entries):
                 jobfile.write(text)
    
         if (b==4):
-             jobfile.write("\n#SBATCH --time=00-02:00")
-             #jobfile.write("\n#SBATCH --qop=normal")
+             jobfile.write("\n#SBATCH --time=02-00:00")
+             jobfile.write("\n#SBATCH --qos=normal")
              jobfile.write("\nmodule load centos7.3/comp/python/3.6.5-gcc")
              jobfile.write("\nmodule load centos7.3/lib/cuda/10.0")
            
@@ -271,6 +272,7 @@ def fetch(entries):
             dosya=open("command.ink","a")
             dosya.write("\n")
             dosya.write(text)
+
                        
                      
                      
@@ -342,9 +344,8 @@ def send():
     search=search+25
     i=search
     file=[]
-    while True:
-            if(lines[search]==":"):
-                break
+    if(lines[search]!=":"):
+      while True:
             search=search+1
             if(lines[search]==","):
                 file=lines[i:search]
@@ -406,7 +407,9 @@ def send():
         client.connect(hostname=hostname, username=username, password=password)
     except:
         print("[!] Cannot connect to the SSH Server")
-        
+
+    stdin,stdout,stderr = client.exec_command("python3 Ornek.py")
+    sonuc = stdout.read()
     name=open("filenamefortruba.ink","r")
     readcom=open("command.ink","r")
     commands=readcom.readlines()
@@ -509,6 +512,7 @@ def output():
                 break
                 
 def commands():
+    root = tk.Tk()
     dosya=open("command.ink","r")
     dosya.readline()
     com=dosya.readline()
@@ -534,29 +538,79 @@ def commands():
     stdin,stdout,stderr = client.exec_command(com)
     sonuc = stdout.read()    
     aa=sonuc.decode("utf-8")
-    root = tk.Tk()
     lab=Label(root,text=aa).pack()
-
 
         
 def makeform(root, fields):
     entries = []
+    a=0
+    dosyaname=open("filenamefortruba.ink","r")
+    dosyaname.readline()
+    dosyaname.readline()
+    dosyaname.readline()
     for field in fields:
-        row = tk.Frame(root)
-        lab = tk.Label(row, width=25, text=field, fg = "white",
-      bg= "grey",font = ("Open Sans","11","normal"),anchor='w')
-        ent = tk.Entry(row)
-        row.pack(side=tk.TOP, fill=tk.X, padx=5, pady=5)
-        lab.pack(side=tk.LEFT)
-        ent.pack(side=tk.RIGHT, expand=tk.YES, fill=tk.X)
-        entries.append((field, ent))
-        
+       row = tk.Frame(root)
+       if a==0:
+        text=dosyaname.readline()   
+        text=str(text)
+        b=len(text)
+        text=text[19:b]
+       if a==1:
+        text=dosyaname.readline() 
+        text=str(text)
+        b=len(text)
+        text=text[22:b]
+       if a==2:
+        text=dosyaname.readline() 
+        text=str(text)
+        b=len(text)
+        text=text[22:b] 
+       if a==3:
+        text=dosyaname.readline() 
+        text=str(text)
+        b=len(text)
+        text=text[15:b]  
+       if a==4:
+        text=dosyaname.readline() 
+        text=str(text)
+        b=len(text)
+        text=text[24:b] 
+       if a==5:
+        text=dosyaname.readline() 
+        text=str(text)
+        b=len(text)
+        text=text[25:b]
+       if a==6:
+        text=dosyaname.readline() 
+        text=str(text)
+        b=len(text)
+        text=text[25:b]
+       if a==7:
+            row = tk.Frame(root)
+            lab = tk.Label(row, width=25, text=field, fg = "white",
+            bg= "grey",font = ("Open Sans","11","normal"),anchor='w')
+            ent = tk.Entry(row)
+            row.pack(side=tk.TOP, fill=tk.X, padx=5, pady=5)
+            lab.pack(side=tk.LEFT)
+            ent.pack(side=tk.RIGHT, expand=tk.YES, fill=tk.X)
+            entries.append((field, ent))  
+       if a!=7:    
+           row = tk.Frame(root)
+           lab = tk.Label(row, width=25, text=field, fg = "white",
+           bg= "grey",font = ("Open Sans","11","normal"),anchor='w')
+           ent = tk.Entry(row)
+           ent.insert(0,text)
+           row.pack(side=tk.TOP, fill=tk.X, padx=5, pady=5)
+           lab.pack(side=tk.LEFT)
+           ent.pack(side=tk.RIGHT, expand=tk.YES, fill=tk.X)
+           entries.append((field, ent))  
+       a=a+1
     return entries
 
     
 def file():
     root = tk.Tk()
-    root.geometry("600x800")
+    root.geometry("800x800")
     root.title("   NuNuTRUBA")
     root.config(bg="white")
     filename=tkinter.filedialog.askopenfilename()
@@ -656,8 +710,8 @@ def file():
         search=search+1
         if(lines[search]==":"):
             break
-    jobfile.write("\n#SBATCH --time=00-02:00")
-    #jobfile.write("\n#SBATCH --qop=normal ")
+    jobfile.write("\n#SBATCH --time=02-00:00")
+    jobfile.write("\n#SBATCH --qos=normal")
     jobfile.write("\nmodule load centos7.3/comp/python/3.6.5-gcc")
     jobfile.write("\nmodule load centos7.3/lib/cuda/10.0")
     
@@ -674,6 +728,7 @@ def file():
                 jobfile.write("\npip install --user ")
                 search=search+1
             if(lines[search]==":"):  
+                    namefile.write(lines[search])
                     break
         
 
@@ -694,7 +749,8 @@ def file():
                 com.write(jobname)
                 com.write(" ")
                 search=search+1
-            if(lines[search]==":"):  
+            if(lines[search]==":"): 
+                 namefile.write(lines[search])
                  break
     com.write(",:")  
     jobfile.write("\npython3 ")
@@ -706,6 +762,7 @@ def file():
     search=search+25
     while True:
             if(lines[search]==":"):
+                namefile.write(lines[search])
                 break
             namefile.write(lines[search])
             search=search+1
@@ -713,12 +770,14 @@ def file():
                 namefile.write(", ")
                 search=search+1
             if(lines[search]==":"):  
+                    namefile.write(lines[search])
                     break
     search=lines.find("#NuNuTRUBA_DONENDOSYALAR=")
     namefile.write("\n#NuNuTRUBA_DONENDOSYALAR=")
     search=search+25
     while True:
             if(lines[search]==":"):
+                namefile.write(lines[search])
                 break
             namefile.write(lines[search])
             search=search+1
@@ -726,36 +785,59 @@ def file():
                 namefile.write(", ")
                 search=search+1
             if(lines[search]==":"):  
+                    namefile.write(lines[search])
                     break
+                
+    lab1=Label(root,text="GİRİLEN BİLGİLER").place(x=100,y=1)          
+    namefile=open("filenamefortruba.ink","r")
+    lines=namefile.readlines()[4:14]
+    lines=str(lines)
+
+    lines=lines.replace(",","\n")
+    lines=lines.replace("'"," ")
+    lines=lines.replace("["," ")
+    lines=lines.replace("]"," ")
+    lab1=Label(root,text=lines).place(x=100,y=25)
+    namefile.readline()
+    namefile.readline()
+    lab1=Label(root,text="             ").pack()
+    lab1=Label(root,text="").pack() 
+    lab1=Label(root,text="").pack()     
+    lab1=Label(root,text="").pack() 
+    lab1=Label(root,text="").pack() 
+    lab1=Label(root,text="").pack()     
+    lab1=Label(root,text="").pack() 
+    lab1=Label(root,text="").pack() 
+    lab1=Label(root,text="").pack() 
+    lab1=Label(root,text="").pack() 
+    lab1=Label(root,text="             ").pack()     
+ 
     
+   
     
+    lab1=Label(root,text="JOB DOSYASI").place(x=500,y=1)    
     namefile=open("filenamefortruba.ink","r")
     namefile.readline()
     namefile.readline()
-    namefile.readline()
-    bir=namefile.readline()
-    lab1=Label(root,text=bir).pack(fill=tk.X)
-    bir=namefile.readline()
-    lab1=Label(root,text=bir).pack(fill=tk.X)
-    bir=namefile.readline()
-    lab1=Label(root,text=bir).pack(fill=tk.X)    
-    bir=namefile.readline()
-    lab1=Label(root,text=bir).pack(fill=tk.X)
-    bir=namefile.readline()
-    lab1=Label(root,text=bir).pack(fill=tk.X)                
-    bir=namefile.readline()
-    lab1=Label(root,text=bir).pack(fill=tk.X) 
-    bir=namefile.readline()
-    lab1=Label(root,text=bir).pack(fill=tk.X) 
-    bir=namefile.readline()
-    lab1=Label(root,text=" KOMUT = sacct").pack(fill=tk.X) 
+    jobname=namefile.readline()
+    jobname=jobname.rstrip()
+    jobfile=open(jobname,"r")
+
+    lines=jobfile.readlines()
+    lines=str(lines)
+    lines=lines.replace(",","\n")
+    lines=lines.replace("'"," ")
+    lines=lines.replace("["," ")
+    lines=lines.replace("]"," ")
+    lab1=Label(root,text=lines).place(x=500,y=25)
     
+    ents = makeform(root, fields)        
     
-    ents = makeform(root, fields)
     dosya=open("command.ink","a")
     dosya.write("\n")
     dosya.write("sacct")
     
+
     
     root.bind('<Return>', (lambda event, e=ents: fetch(e)))   
     b1 = tk.Button(root, text='DÜZENLE',  fg = "white",
@@ -786,9 +868,10 @@ def file():
       bg= "grey", command=root.destroy)
     b2.pack(side=tk.LEFT, padx=5, pady=5) 
     
-    
 def deneme():
     
+    
+
     send=open("settings.ink","r")
     ilk=send.readline() 
     hostname=ilk.rstrip()

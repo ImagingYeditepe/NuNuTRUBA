@@ -19,10 +19,9 @@ import paramiko
 
 
 
-fields = 'KUYRUK', 'CPU SAYISI', 'GPU SAYISI','PİPS ', "PARAMETRELER", 'GİDEN DOSYALAR', "DÖNEN DOSYALAR","KOMUT"
+fields = 'KUYRUK', 'CPU SAYISI', 'GPU SAYISI','PİPS ', "PARAMETRELER", 'GİDEN DOSYALAR', "DÖNEN DOSYALAR"
 works =  'Ip/Host Adı','Kullanıcı Adı','Şifre'
-    
-
+ 
  
     
 def fet2(entries):
@@ -98,6 +97,7 @@ def fetch(entries):
     jobfile=open(namejob,"w")
     jobfile.write("#!/bin/bash") 
     b=0
+    x=0
     for entry in entries:
         b=b+1
         field = entry[0]
@@ -109,6 +109,7 @@ def fetch(entries):
             search=search+18
             jobfile.write("\n#SBATCH -p ")
             if Enquiry(text):
+                x=search
                 while True:
                     jobfile.write(lines[search])
                     search=search+1
@@ -361,11 +362,11 @@ def output():
                         
                 break
                 
-def commands():
-    dosya=open("command.ink","r")
-    dosya.readline()
-    com=dosya.readline()
-    com=com.rstrip()
+def commands(entries):
+  for entry in entries:
+   field = entry[0]
+   text  = entry[1].get()
+   if Enquiry(text):
     send=open("settings.ink","r")
     ilk=send.readline() 
     hostname=ilk.rstrip()
@@ -383,10 +384,34 @@ def commands():
     except:
         print("[!] Cannot connect to the SSH Server")
 
-    stdin,stdout,stderr = client.exec_command(com)
+    stdin,stdout,stderr = client.exec_command("sacct")
     sonuc = stdout.read()    
     aa=sonuc.decode("utf-8")
-    lab=Label(root,text=aa).pack(side=RIGHT)
+    lab=Label(root,text=aa, fg = "white",
+           bg= "black",font = ("Open Sans","11","normal")).pack(side=RIGHT)
+   else:    
+    send=open("settings.ink","r")
+    ilk=send.readline() 
+    hostname=ilk.rstrip()
+    
+    ilk=send.readline()
+    username=ilk.rstrip()
+    
+    ilk=send.readline() 
+    password=ilk.rstrip()
+    
+    client = paramiko.SSHClient()
+    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    try:
+        client.connect(hostname=hostname, username=username, password=password)
+    except:
+        print("[!] Cannot connect to the SSH Server")
+    print(text)
+    stdin,stdout,stderr = client.exec_command(text)
+    sonuc = stdout.read()    
+    aa=sonuc.decode("utf-8")
+    lab=Label(root,text=aa, fg = "white",
+           bg= "black",font = ("Open Sans","11","normal")).pack(side=RIGHT)
 
         
 def makeform(root, fields):
@@ -433,25 +458,16 @@ def makeform(root, fields):
         text=str(text)
         b=len(text)
         text=text[25:b]
-       if a==7:
-            row = tk.Frame(root)
-            lab = tk.Label(row, width=25, text=field, fg = "white",
-            bg= "grey",font = ("Open Sans","11","normal"),anchor='w')
-            ent = tk.Entry(row)
-            row.pack(side=tk.TOP, fill=tk.X, padx=5, pady=5)
-            lab.pack(side=tk.LEFT)
-            ent.pack(side=tk.RIGHT, expand=tk.YES, fill=tk.X)
-            entries.append((field, ent))  
-       if a!=7:    
-           row = tk.Frame(root)
-           lab = tk.Label(row, width=25, text=field, fg = "white",
-           bg= "grey",font = ("Open Sans","11","normal"),anchor='w')
-           ent = tk.Entry(row)
-           ent.insert(0,text)
-           row.pack(side=tk.TOP, fill=tk.X, padx=5, pady=5)
-           lab.pack(side=tk.LEFT)
-           ent.pack(side=tk.RIGHT, expand=tk.YES, fill=tk.X)
-           entries.append((field, ent))  
+      
+       row = tk.Frame(root)
+       lab = tk.Label(row, width=25, text=field, fg = "white",
+       bg= "grey",font = ("Open Sans","11","normal"),anchor='w')
+       ent = tk.Entry(row)
+       ent.insert(0,text)
+       row.pack(side=tk.TOP, fill=tk.X, padx=5, pady=5)
+       lab.pack(side=tk.LEFT)
+       ent.pack(side=tk.RIGHT, expand=tk.YES, fill=tk.X)
+       entries.append((field, ent))  
        a=a+1
     return entries
 
@@ -583,6 +599,7 @@ def send():
     except:
         print("[!] Cannot connect to the SSH Server")
 
+    
     root = tk.Tk()
     name=open("filenamefortruba.ink","r")
     readcom=open("command.ink","r")
@@ -832,9 +849,8 @@ def file():
     
     ents = makeform(root, fields)        
     
-    dosya=open("command.ink","a")
-    dosya.write("\n")
-    dosya.write("ls")
+    
+
     
     
     root.bind('<Return>', (lambda event, e=ents: fetch(e)))   
@@ -861,7 +877,39 @@ def file():
       bg= "grey", command=root.destroy)
     b2.pack(side=tk.LEFT, padx=5, pady=5) 
     
+def commake(root):
+        komentries = []
 
+        
+        row = tk.Frame(root)
+        ent = tk.Entry(row)
+        row.pack(side=tk.TOP,  padx=5, pady=5)
+    
+        ent.pack(side=tk.LEFT, expand=tk.YES)
+        komentries.append(("KOMUT", ent))
+        send=open("settings.ink","r")
+        ilk=send.readline() 
+        hostname=ilk.rstrip()
+    
+        ilk=send.readline()
+        username=ilk.rstrip()
+    
+        ilk=send.readline() 
+        password=ilk.rstrip()
+    
+        client = paramiko.SSHClient()
+        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        try:
+            client.connect(hostname=hostname, username=username, password=password)
+        except:
+            print("[!] Cannot connect to the SSH Server")
+
+        stdin,stdout,stderr = client.exec_command("sacct")
+        sonuc = stdout.read()    
+        aa=sonuc.decode("utf-8")
+        lab=Label(root,text=aa, fg = "white",
+           bg= "black",font = ("Open Sans","11","normal")).pack(side=RIGHT)
+        return komentries    
     
 
 root=Tk()
@@ -873,39 +921,42 @@ root.config(bg="black")
 yazı = Label(root,text = "NuNuTRUBA", 
              fg = "white", 
              bg= "black",
-             font = ("Open Sans","50","bold"),
-            padx=35,
-            pady=35).pack(fill=X)
+             font = ("Open Sans","40","bold"),
+            padx=30,
+            pady=30).pack(fill=X)
 
 start=tkinter.Button(root, 
       text="TRUBA GİRİŞ",
       command = file ,
       fg = "white",
       bg= "black",
-      font = ("Open Sans","30","bold"),
-      padx=25,
-      pady=25).pack()
+      font = ("Open Sans","28","bold"),
+      padx=20,
+      pady=20).pack()
 
 setting=tkinter.Button(root, 
       text="AYARLAR",
       command=settings,
       fg = "white",
       bg= "black",
-      font = ("Open Sans","30","bold"),
-      padx=25,
-      pady=25).pack()
-b2 = tk.Button(root, text='KOMUT',   fg = "white",
-      bg= "grey", command=commands)
-b2.pack(side=tk.LEFT, padx=5, pady=5)  
+      font = ("Open Sans","28","bold"),
+      padx=20,
+      pady=20).pack()
+
 
 buton2=tkinter.Button(root, 
       text="ÇIKIŞ",
       command = root.destroy,
       fg = "white",
       bg= "black",
-      font = ("Open Sans","30","bold"),
-      padx=25,
-      pady=25).pack()
-    
+      font = ("Open Sans","28","bold"),
+      padx=20,
+      pady=20).pack()
+ents=commake(root)
 
+root.bind('<Return>', (lambda event, e=ents: commands(e)))   
+b1 = tk.Button(root, text='KOMUT',  fg = "white",
+      bg= "black", command=(lambda e=ents: commands(e)))
+b1.place(x=290,y=473)               
+ 
 root.mainloop()

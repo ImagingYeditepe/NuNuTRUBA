@@ -710,8 +710,8 @@ def file():
         search=search+1
         if(lines[search]==":"):
             break
-    jobfile.write("\n#SBATCH --time=02-00:00")
-    jobfile.write("\n#SBATCH --qos=normal")
+    jobfile.write("\n#SBATCH --time=00-02:00")
+    #jobfile.write("\n#SBATCH --qos=normal")
     jobfile.write("\nmodule load centos7.3/comp/python/3.6.5-gcc")
     jobfile.write("\nmodule load centos7.3/lib/cuda/10.0")
     

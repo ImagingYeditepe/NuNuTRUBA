@@ -98,7 +98,6 @@ def fetch(entries):
     jobfile=open(namejob,"w")
     jobfile.write("#!/bin/bash") 
     b=0
-    x=0
     for entry in entries:
         b=b+1
         field = entry[0]
@@ -110,7 +109,6 @@ def fetch(entries):
             search=search+18
             jobfile.write("\n#SBATCH -p ")
             if Enquiry(text):
-                x=search
                 while True:
                     jobfile.write(lines[search])
                     search=search+1
@@ -147,8 +145,8 @@ def fetch(entries):
                 jobfile.write(text)
    
         if (b==4):
-             jobfile.write("\n#SBATCH --time=02-00:00")
-             jobfile.write("\n#SBATCH --qos=normal")
+             jobfile.write("\n#SBATCH --time=00-02:00")
+             #jobfile.write("\n#SBATCH --qos=normal")
              jobfile.write("\nmodule load centos7.3/comp/python/3.6.5-gcc")
              jobfile.write("\nmodule load centos7.3/lib/cuda/10.0")
            
@@ -278,155 +276,7 @@ def fetch(entries):
                      
 
        
-def send():
-    import paramiko
-    send=open("settings.ink","r")
-    ilk=send.readline() 
-    hostname=ilk.rstrip()
-    
-    ilk=send.readline()
-    username=ilk.rstrip()
-    
-    ilk=send.readline() 
-    password=ilk.rstrip()
-    
-    
-    
-    client = paramiko.SSHClient()
-    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    try:
-        client.connect(hostname=hostname, username=username, password=password)
-    except:
-        print("[!] Cannot connect to the SSH Server")
-    
-        
-           
-    from scp import SCPClient           
-    scp = SCPClient(client.get_transport())
-    name=open("filenamefortruba.ink","r")
-    adres1=name.readline()
-    adres1=adres1.rstrip()
-    adres2=adres1[0:-3]
-    adres2=adres2+".job"
-    
-    filename=name.readline()
-    filename=filename.rstrip()
-    
-    liste2=['/truba','home',username,filename]
-    gonderilen='/'.join(liste2)
-    scp.put(adres1, gonderilen)
-    
-    
-    
-    
-    
-    scp = SCPClient(client.get_transport())
-    filename2=filename[0:-3]
-    filename2=filename2+".job"
-    liste2=['/truba','home',username,filename2]
-    gonderilen='/'.join(liste2)
-    scp.put(adres2, gonderilen)
-   
-    
-    
-    
-    client = paramiko.SSHClient()
-    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    try:
-        client.connect(hostname=hostname, username=username, password=password)
-    except:
-        print("[!] Cannot connect to the SSH Server")
-    
-    name=open("filenamefortruba.ink","r")
-    line=name.readlines()
-    lines=str(line)
-    search=lines.find("#NuNuTRUBA_GIDENDOSYALAR=")
-    search=search+25
-    i=search
-    file=[]
-    if(lines[search]!=":"):
-      while True:
-            search=search+1
-            if(lines[search]==","):
-                file=lines[i:search]
-                liste=['/truba','home',username,file]
-                host='/'.join(liste) 
-                
-                name=open("filenamefortruba.ink","r")
-                adres=name.readline()
-                adres=str(adres)   
-                adres=adres[::-1]
-                a=0
-                while True:
-                     a=a+1
-                     if(adres[a]=="/"):
-                         break
-                adres=adres[a+1:]
-                adres=adres[::-1]
-                liste2=[adres,file]
-                local='/'.join(liste2)
-                from scp import SCPClient                     
-                scp = SCPClient(client.get_transport())
-                scp.put(local,host)
-            
-                
-                
-                i=search+1
-                
-            if(lines[search]==":"):  
-                file=lines[i:search]
-                from scp import SCPClient                     
-                scp = SCPClient(client.get_transport())
-                liste=['/truba','home',username,file]
-                host='/'.join(liste)
-                
-                name=open("filenamefortruba.ink","r")
-                adres=name.readline()
-                adres=str(adres)   
-                adres=adres[::-1]
-                a=0
-                while True:
-                     a=a+1
-                     if(adres[a]=="/"):
-                         break
-                adres=adres[a+1:]
-                adres=adres[::-1]
-                liste2=[adres,file]
-                local='/'.join(liste2)
-                scp.put(local,host)
-                                
-                        
-                
-                i=search+1
-                        
-                break
-             
-    client = paramiko.SSHClient()
-    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    try:
-        client.connect(hostname=hostname, username=username, password=password)
-    except:
-        print("[!] Cannot connect to the SSH Server")
 
-    stdin,stdout,stderr = client.exec_command("python3 Ornek.py")
-    sonuc = stdout.read()
-    name=open("filenamefortruba.ink","r")
-    readcom=open("command.ink","r")
-    commands=readcom.readlines()
-    command=str(commands)
-    i=2
-    a=2
-    while True:
-        i=i+1
-        if(command[i]==","):
-            sendcommand=command[a:i] 
-            stdin,stdout,stderr = client.exec_command(sendcommand)
-            sonuc = stdout.read()
-            print(sonuc.decode("utf-8"))
-            a=i+1
-        if(command[i]==":"):
-       
-            break
 
         
 def output():
@@ -512,12 +362,10 @@ def output():
                 break
                 
 def commands():
-    root = tk.Tk()
     dosya=open("command.ink","r")
     dosya.readline()
     com=dosya.readline()
     com=com.rstrip()
-    print(com)
     send=open("settings.ink","r")
     ilk=send.readline() 
     hostname=ilk.rstrip()
@@ -538,7 +386,7 @@ def commands():
     stdin,stdout,stderr = client.exec_command(com)
     sonuc = stdout.read()    
     aa=sonuc.decode("utf-8")
-    lab=Label(root,text=aa).pack()
+    lab=Label(root,text=aa).pack(side=RIGHT)
 
         
 def makeform(root, fields):
@@ -607,6 +455,154 @@ def makeform(root, fields):
        a=a+1
     return entries
 
+def send():
+    import paramiko
+    send=open("settings.ink","r")
+    ilk=send.readline() 
+    hostname=ilk.rstrip()
+    
+    ilk=send.readline()
+    username=ilk.rstrip()
+    
+    ilk=send.readline() 
+    password=ilk.rstrip()
+    
+    
+    
+    client = paramiko.SSHClient()
+    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    try:
+        client.connect(hostname=hostname, username=username, password=password)
+    except:
+        print("[!] Cannot connect to the SSH Server")
+    
+        
+           
+    from scp import SCPClient           
+    scp = SCPClient(client.get_transport())
+    name=open("filenamefortruba.ink","r")
+    adres1=name.readline()
+    adres1=adres1.rstrip()
+    adres2=adres1[0:-3]
+    adres2=adres2+".job"
+    
+    filename=name.readline()
+    filename=filename.rstrip()
+    
+    liste2=['/truba','home',username,filename]
+    gonderilen='/'.join(liste2)
+    scp.put(adres1, gonderilen)
+ 
+    
+    scp = SCPClient(client.get_transport())
+    filename2=filename[0:-3]
+    filename2=filename2+".job"
+    liste2=['/truba','home',username,filename2]
+    gonderilen='/'.join(liste2)
+  
+    scp.put(adres2, gonderilen)
+   
+    
+    
+    
+    client = paramiko.SSHClient()
+    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    try:
+        client.connect(hostname=hostname, username=username, password=password)
+    except:
+        print("[!] Cannot connect to the SSH Server")
+    
+    name=open("filenamefortruba.ink","r")
+    line=name.readlines()
+    lines=str(line)
+    search=lines.find("#NuNuTRUBA_GIDENDOSYALAR=")
+    search=search+25
+    i=search
+    file=[]
+    yok=search
+
+           
+    if(lines[yok]!=":"):           
+      while True:
+            search=search+1
+
+            if(lines[search]==","):
+                file=lines[i:search]
+                liste=['/truba','home',username,file]
+                host='/'.join(liste) 
+                
+                name=open("filenamefortruba.ink","r")
+                adres=name.readline()
+                adres=str(adres)   
+                adres=adres[::-1]
+                a=0
+                while True:
+                     a=a+1
+                     if(adres[a]=="/"):
+                         break
+                adres=adres[a+1:]
+                adres=adres[::-1]
+                liste2=[adres,file]
+                local='/'.join(liste2)
+                from scp import SCPClient                     
+                scp = SCPClient(client.get_transport())
+              
+                scp.put(local,host)
+                i=search+1
+           
+            if(lines[search]==":"):  
+                file=lines[i:search]
+                from scp import SCPClient                     
+                scp = SCPClient(client.get_transport())
+                liste=['/truba','home',username,file]
+                host='/'.join(liste)
+                
+                name=open("filenamefortruba.ink","r")
+                adres=name.readline()
+                adres=str(adres)   
+                adres=adres[::-1]
+                a=0
+                while True:
+                     a=a+1
+                     if(adres[a]=="/"):
+                         break
+                adres=adres[a+1:]
+                adres=adres[::-1]
+                liste2=[adres,file]
+                local='/'.join(liste2)
+                scp.put(local,host)
+                
+                i=search+1
+                        
+                break
+             
+    client = paramiko.SSHClient()
+    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    try:
+        client.connect(hostname=hostname, username=username, password=password)
+    except:
+        print("[!] Cannot connect to the SSH Server")
+
+    root = tk.Tk()
+    name=open("filenamefortruba.ink","r")
+    readcom=open("command.ink","r")
+    commands=readcom.readlines()
+    command=str(commands)
+    
+    i=2
+    a=2
+    while True:
+        i=i+1
+        if(command[i]==","):
+            sendcommand=command[a:i] 
+            stdin,stdout,stderr = client.exec_command(sendcommand)
+            sonuc = stdout.read()
+            metin=sonuc.decode("utf-8")
+            lab=Label(root,text=metin).pack()
+            a=i+1
+        if(command[i]==":"):
+       
+            break
     
 def file():
     root = tk.Tk()
@@ -767,7 +763,7 @@ def file():
             namefile.write(lines[search])
             search=search+1
             if(lines[search]==","):
-                namefile.write(", ")
+                namefile.write(",")
                 search=search+1
             if(lines[search]==":"):  
                     namefile.write(lines[search])
@@ -782,7 +778,7 @@ def file():
             namefile.write(lines[search])
             search=search+1
             if(lines[search]==","):
-                namefile.write(", ")
+                namefile.write(",")
                 search=search+1
             if(lines[search]==":"):  
                     namefile.write(lines[search])
@@ -790,7 +786,7 @@ def file():
                 
     lab1=Label(root,text="GİRİLEN BİLGİLER").place(x=100,y=1)          
     namefile=open("filenamefortruba.ink","r")
-    lines=namefile.readlines()[4:14]
+    lines=namefile.readlines()[3:14]
     lines=str(lines)
 
     lines=lines.replace(",","\n")
@@ -810,6 +806,9 @@ def file():
     lab1=Label(root,text="").pack() 
     lab1=Label(root,text="").pack() 
     lab1=Label(root,text="").pack() 
+    lab1=Label(root,text="").pack()     
+    lab1=Label(root,text="").pack()     
+    lab1=Label(root,text="").pack()     
     lab1=Label(root,text="             ").pack()     
  
     
@@ -835,9 +834,8 @@ def file():
     
     dosya=open("command.ink","a")
     dosya.write("\n")
-    dosya.write("sacct")
+    dosya.write("ls")
     
-
     
     root.bind('<Return>', (lambda event, e=ents: fetch(e)))   
     b1 = tk.Button(root, text='DÜZENLE',  fg = "white",
@@ -849,12 +847,7 @@ def file():
       bg= "grey", command=send)
     b2.pack(side=tk.LEFT, padx=5, pady=5)  
     
-     
-    b2 = tk.Button(root, text='ÇALIŞTIR',   fg = "white",
-      bg= "grey", command=commands)
-    b2.pack(side=tk.LEFT, padx=5, pady=5)  
     
-
     
     b1.pack(side=tk.LEFT, padx=5, pady=5) 
     b2 = tk.Button(root, text='ÇIKTI',   fg = "white",
@@ -868,69 +861,15 @@ def file():
       bg= "grey", command=root.destroy)
     b2.pack(side=tk.LEFT, padx=5, pady=5) 
     
-def deneme():
-    
-    
 
-    send=open("settings.ink","r")
-    ilk=send.readline() 
-    hostname=ilk.rstrip()
-        
-    ilk=send.readline()
-    username=ilk.rstrip()
-    
-    ilk=send.readline() 
-    password=ilk.rstrip()
-    
-    client = paramiko.SSHClient()
-    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    try:
-        client.connect(hostname=hostname, username=username, password=password)
-    except:
-        print("[!] Cannot connect to the SSH Server")
-
-    stdin,stdout,stderr = client.exec_command("sacct")
-    sonuc = stdout.read()    
-    aa=sonuc.decode("utf-8")
-    lab=Label(root,text=aa).pack(side=RIGHT)
     
 
 root=Tk()
 root.title("   NuNuTRUBA")
 
-send=open("settings.ink","r")
-ilk=send.readline() 
-hostname=ilk.rstrip()
-    
-ilk=send.readline()
-username=ilk.rstrip()
-    
-ilk=send.readline() 
-password=ilk.rstrip()
-    
-client = paramiko.SSHClient()
-client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-try:
-        client.connect(hostname=hostname, username=username, password=password)
-except:
-        print("[!] Cannot connect to the SSH Server")
 
-stdin,stdout,stderr = client.exec_command("sacct")
-sonuc = stdout.read()    
-aa=sonuc.decode("utf-8")
-lab=Label(root,text=aa).pack(side=LEFT)
-
-
-yenils=tkinter.Button(root, 
-      text="YENİLE",
-      command=deneme,
-      fg = "white",
-      bg= "black",
-      font = ("Open Sans","7","bold"),
-      padx=8,  
-      pady=8)
-yenils.place(x=1,y=150)
 root.config(bg="black")
+
 yazı = Label(root,text = "NuNuTRUBA", 
              fg = "white", 
              bg= "black",
@@ -955,7 +894,9 @@ setting=tkinter.Button(root,
       font = ("Open Sans","30","bold"),
       padx=25,
       pady=25).pack()
-
+b2 = tk.Button(root, text='KOMUT',   fg = "white",
+      bg= "grey", command=commands)
+b2.pack(side=tk.LEFT, padx=5, pady=5)  
 
 buton2=tkinter.Button(root, 
       text="ÇIKIŞ",

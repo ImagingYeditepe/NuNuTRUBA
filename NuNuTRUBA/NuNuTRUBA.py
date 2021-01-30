@@ -147,6 +147,10 @@ def fetch(entries):
         if (b==4):
              jobfile.write("\n#SBATCH --time=00-02:00")
              #jobfile.write("\n#SBATCH --qos=normal")
+             '''BU SATIR OLMAZSA MODULLER module: command not found hatası veriyor
+             https://www.tchpc.tcd.ie/node/182'''
+
+             jobfile.write("\n. /etc/profile.d/modules.sh")
              jobfile.write("\nmodule load centos7.3/comp/python/3.6.5-gcc")
              jobfile.write("\nmodule load centos7.3/lib/cuda/10.0")
            
@@ -722,6 +726,10 @@ def file():
             break
     jobfile.write("\n#SBATCH --time=00-02:00")
     #jobfile.write("\n#SBATCH --qos=normal")
+    '''BU SATIR OLMAZSA MODULLER module: command not found hatası veriyor
+    https://www.tchpc.tcd.ie/node/182'''
+    jobfile.write("\n. /etc/profile.d/modules.sh")
+             
     jobfile.write("\nmodule load centos7.3/comp/python/3.6.5-gcc")
     jobfile.write("\nmodule load centos7.3/lib/cuda/10.0")
     

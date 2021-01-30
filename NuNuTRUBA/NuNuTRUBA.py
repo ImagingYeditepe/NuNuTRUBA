@@ -12,7 +12,6 @@ import tkinter
 from tkinter.filedialog import askopenfilename
 from tkinter.filedialog import *    
 import tkinter as tk
-from PIL import Image, ImageTk 
 import os
 import scp
 import paramiko
@@ -388,7 +387,7 @@ def commands(entries):
     sonuc = stdout.read()    
     aa=sonuc.decode("utf-8")
     lab=Label(root,text=aa, fg = "white",
-           bg= "black",font = ("Open Sans","11","normal")).pack(side=RIGHT)
+           bg= "black",font = ("Courier New","11","normal")).place(x=600,y=550)
    else:    
     send=open("settings.ink","r")
     ilk=send.readline() 
@@ -411,7 +410,7 @@ def commands(entries):
     sonuc = stdout.read()    
     aa=sonuc.decode("utf-8")
     lab=Label(root,text=aa, fg = "white",
-           bg= "black",font = ("Open Sans","11","normal")).pack(side=RIGHT)
+           bg= "black",font = ("Courier New","11","normal")).place(x=600,y=550)
 
         
 def makeform(root, fields):
@@ -461,7 +460,7 @@ def makeform(root, fields):
       
        row = tk.Frame(root)
        lab = tk.Label(row, width=25, text=field, fg = "white",
-       bg= "grey",font = ("Open Sans","11","normal"),anchor='w')
+       bg= "grey",font = ("Courier New","11","normal"),anchor='w')
        ent = tk.Entry(row)
        ent.insert(0,text)
        row.pack(side=tk.TOP, fill=tk.X, padx=5, pady=5)
@@ -599,7 +598,6 @@ def send():
     except:
         print("[!] Cannot connect to the SSH Server")
 
-    
     root = tk.Tk()
     name=open("filenamefortruba.ink","r")
     readcom=open("command.ink","r")
@@ -623,11 +621,10 @@ def send():
     
 def file():
     root = tk.Tk()
-    root.geometry("800x800")
     root.title("   NuNuTRUBA")
+    root.geometry("800x800")
     root.config(bg="white")
     filename=tkinter.filedialog.askopenfilename()
-
    
     namefile=open("filenamefortruba.ink","w")
     namefile.write(filename)
@@ -849,7 +846,7 @@ def file():
     
     ents = makeform(root, fields)        
     
-    
+
 
     
     
@@ -880,83 +877,82 @@ def file():
 def commake(root):
         komentries = []
 
+        ent = tk.Entry(root)
         
-        row = tk.Frame(root)
-        ent = tk.Entry(row)
-        row.pack(side=tk.TOP,  padx=5, pady=5)
-    
-        ent.pack(side=tk.LEFT, expand=tk.YES)
+        ent.place(x=560,y=210)
         komentries.append(("KOMUT", ent))
-        send=open("settings.ink","r")
-        ilk=send.readline() 
-        hostname=ilk.rstrip()
-    
-        ilk=send.readline()
-        username=ilk.rstrip()
-    
-        ilk=send.readline() 
-        password=ilk.rstrip()
-    
-        client = paramiko.SSHClient()
-        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
         try:
+            send=open("settings.ink","r")
+            ilk=send.readline() 
+            hostname=ilk.rstrip()
+    
+            ilk=send.readline()
+            username=ilk.rstrip()
+        
+            ilk=send.readline() 
+            password=ilk.rstrip()
+    
+            client = paramiko.SSHClient()
+            client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             client.connect(hostname=hostname, username=username, password=password)
+            stdin,stdout,stderr = client.exec_command("sacct")
+            sonuc = stdout.read()    
+            aa=sonuc.decode("utf-8")
+            lab=Label(root,text=aa, fg = "white",
+            bg= "black",font = ("Courier New","11","normal")).place(x=600,y=550)
         except:
             print("[!] Cannot connect to the SSH Server")
 
-        stdin,stdout,stderr = client.exec_command("sacct")
-        sonuc = stdout.read()    
-        aa=sonuc.decode("utf-8")
-        lab=Label(root,text=aa, fg = "white",
-           bg= "black",font = ("Open Sans","11","normal")).pack(side=RIGHT)
+
         return komentries    
     
 
 root=Tk()
 root.title("   NuNuTRUBA")
 
-
 root.config(bg="black")
-
+foto=PhotoImage(file="ekran.png")
+yazı = Label(root,image= foto).pack()
 yazı = Label(root,text = "NuNuTRUBA", 
              fg = "white", 
              bg= "black",
-             font = ("Open Sans","40","bold"),
+             font = ("Harrington","40","italic","bold"),
             padx=30,
-            pady=30).pack(fill=X)
-
+            pady=30).place(x=470,y=40)
 start=tkinter.Button(root, 
       text="TRUBA GİRİŞ",
       command = file ,
       fg = "white",
       bg= "black",
-      font = ("Open Sans","28","bold"),
-      padx=20,
-      pady=20).pack()
+      font = ("Courier New","19","bold"),
+      padx=15,
+      pady=15).place(x=560,y=240)
 
 setting=tkinter.Button(root, 
       text="AYARLAR",
       command=settings,
       fg = "white",
       bg= "black",
-      font = ("Open Sans","28","bold"),
-      padx=20,
-      pady=20).pack()
-
+      font = ("Courier New","19","bold"),
+      padx=15,
+      pady=15).place(x=590,y=330)
 
 buton2=tkinter.Button(root, 
       text="ÇIKIŞ",
       command = root.destroy,
       fg = "white",
       bg= "black",
-      font = ("Open Sans","28","bold"),
-      padx=20,
-      pady=20).pack()
+      font = ("Courier New","19","bold"),
+      padx=15,
+      pady=15).place(x=605,y=420)
+
 ents=commake(root)
 
 root.bind('<Return>', (lambda event, e=ents: commands(e)))   
-b1 = tk.Button(root, text='KOMUT',  fg = "white",
-      bg= "black", command=(lambda e=ents: commands(e)))
-b1.place(x=290,y=473)               
+b1 = tk.Button(root, text='KOMUT',  fg = "pink",
+      bg= "black",font = ("Courier New","12"), command=(lambda e=ents: commands(e)))
+b1.place(x=710,y=200)               
  
+
 root.mainloop()

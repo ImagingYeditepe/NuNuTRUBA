@@ -89,11 +89,12 @@ def fetch(entries):
     filename=filename.rstrip()
     namejob=filename[0:-3]
     name=namejob
+    name=name+".py"
     namejob=namejob+".job"
     pyfile=open(filename,"r")
     line=pyfile.readlines()
     lines=str(line)
-    jobfile=open(namejob,"w")
+    jobfile=open(namejob,"w",newline="\n")
     jobfile.write("#!/bin/bash") 
     b=0
     x=0

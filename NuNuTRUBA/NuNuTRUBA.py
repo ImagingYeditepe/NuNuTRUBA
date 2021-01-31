@@ -88,8 +88,6 @@ def fetch(entries):
     filename=name.readline()
     filename=filename.rstrip()
     namejob=filename[0:-3]
-    name=namejob
-    name=name+".py"
     namejob=namejob+".job"
     pyfile=open(filename,"r")
     line=pyfile.readlines()
@@ -392,7 +390,7 @@ def commands(entries):
     sonuc = stdout.read()    
     aa=sonuc.decode("utf-8")
     lab=Label(root,text=aa, fg = "white",
-           bg= "black",font = ("Courier New","11","normal")).place(x=600,y=550)
+           bg= "black",font = ("Courier New","11","normal")).place(x=100,y=550)
    else:    
     send=open("settings.ink","r")
     ilk=send.readline() 
@@ -415,7 +413,7 @@ def commands(entries):
     sonuc = stdout.read()    
     aa=sonuc.decode("utf-8")
     lab=Label(root,text=aa, fg = "white",
-           bg= "black",font = ("Courier New","11","normal")).place(x=600,y=550)
+           bg= "black",font = ("Courier New","11","normal")).place(x=100,y=550)
 
         
 def makeform(root, fields):
@@ -909,7 +907,7 @@ def commake(root):
             sonuc = stdout.read()    
             aa=sonuc.decode("utf-8")
             lab=Label(root,text=aa, fg = "white",
-            bg= "black",font = ("Courier New","11","normal")).place(x=600,y=550)
+            bg= "black",font = ("Courier New","11","normal")).place(x=100,y=550)
         except:
             print("[!] Cannot connect to the SSH Server")
 
